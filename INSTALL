@@ -1,0 +1,40 @@
+Installation/Removal instruction for the glFusion External Pages plugin.
+
+Step 1:  Regardless of the installation method used, you should back up your glFusion database before installing new software.  The External Pages plugin adds tables to your glFusion database.  You can do this with the built in admin backup facility.
+
+
+AUTOMATIC INSTALLATION:
+
+The External Pages plugin supports automatic installation for glFusion.  Simply upload the plugin archive via the glFusion plugin administration utility and install it.
+
+
+MANUAL INSTALLATION:
+
+Step 2:  Uncompress the External Pages plugin archive while in the <glFusion_private>/plugins directory.  The archive will create a directory called external in the plugins directory.
+
+Step 3:  Create the public_html and admin directories.  Under your html directory (usually public_html) create a directory called external.  Under your admin/plugins/ directory create a directory called external.
+
+Step 4:  Change to your <glFusion_private>/plugins/external/ directory.  Copy the files in the admin directory to the admin/plugins/external/ directory your created in step 3.  Copy the files and directories in the public_html directory to the public_html/external/ directory your created in step 3.
+
+Step 5:  If necessary, create or edit the config.php file in the external directory and override the table prefix and other configuration variables.  The default is to use the glFusion table prefix and not allow anonymous access.
+
+Step 6:  Log in to your glFusion as a root user and run install.php in your admin/plugins/external/ directory.
+The installation page will tell you if the installation was successful or not.  If not examine glFusion system errorlog for possible problems.
+
+The External Pages plugin should now be installed and functioning.  Clicking on the External Pages Icon will take you to the admin page.  
+
+Step 7: Set up security.  On install only the root users have access to External Pages administration.  
+You can delegate control for this functions through the user and group editors.
+
+Step 8: Add the code at the top of your external pages so that they can participate in glFusion Security.  
+This code also handles the tracking of hits.
+
+
+UNINSTALL:
+
+Step 1:  Run the install.php page in your admin/plugins/external directory.  This will remove all the data from your database.
+
+Step 2:  Delete the three plugin directories created in the install process:  <glFusion-dir>plugins/external/, <public_html>/external/ and <admin>/plugins/external/
+
+Thats it.
+

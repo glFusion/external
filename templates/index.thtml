@@ -1,0 +1,13 @@
+<p align="center"></p>
+<table width="100%"><tr style="font-weight: bold;">
+<td>{pageno}</td><td>{pageurl}</td></tr>
+<tr><td colspan="2"></td></tr>
+{notavail}
+<!-- BEGIN Newpage -->
+<tr><td>
+{exid}
+</td><td>
+<a href="{page}">{title}</a>
+</td></tr>
+<!-- END Newpage -->
+</table>
