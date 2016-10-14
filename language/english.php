@@ -71,6 +71,7 @@ $LANG_configsections['external'] = array(
 $LANG_confignames['external'] = array(
     'show' => 'Show the external page list to users',
     'defgrp' => 'Default Group',
+    'defuser' => 'Default User',
     'default_permissions' => 'Default Permission',
 );
 

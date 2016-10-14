@@ -1,14 +1,14 @@
 <?php
 /**
-*   This is the English language page for the External Pages Plug-in.
+*   This is the Polish language page for the External Pages Plug-in.
 *   @author     Lee Garner <lee@leegarner.com>
 *   @author     Tom Willett <tomw@pigstye.net>
-*   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (c) 2002 Tom Willett <tomw@pigstye.net>
 *   @package    external
-*   @version    0.1
+*   @version    1.0.2
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
-*   GNU Public License v2 or later
+*               GNU Public License v2 or later
 *   @filesource
 *
 *   Based on the External Pages Plugin 1.0 for Geeklog 1.3.6
@@ -70,6 +70,7 @@ $LANG_configsections['external'] = array(
 $LANG_confignames['external'] = array(
     'show' => 'Poka¿ list¿ stron zewn¿trznych u¿ytkowników',
     'defgrp' => 'Domy¿lna',
+    'defuser' => 'Default User',
     'default_permissions' => 'Domy¿lne uprawnienia',
 );
 
