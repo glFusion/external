@@ -7,7 +7,7 @@
 *   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (c) 2002 Tom Willett <tomw@pigstye.net>
 *   @package    external
-*   @version    1.0.1
+*   @version    1.0.2
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
 *               GNU Public License v2 or later
 *   @filesource
@@ -68,7 +68,8 @@ function USES_external_upgrade()
 
 /**
 *   Get the currently installed version
-*   @return string Plugin version
+*
+*   @return string  Plugin version
 */
 function plugin_chkVersion_external()
 {
@@ -79,9 +80,8 @@ function plugin_chkVersion_external()
 
 /**
 *   Show the statistics for the external files plugin on stats.php.  
-*   If $showsitestats is 1 then we are to only print the overall stats 
-*   in the 'site statistics box', otherwise we show the detailed stats 
-*   for the photo album
+*   If $showsitestats is 1 then we are to only print the overall stats .
+*
 *   @param  integer showsitestats   Flag to let us know which stats to get
 */
 function plugin_showstats_external($showsitestats) 
@@ -131,7 +131,8 @@ function plugin_showstats_external($showsitestats)
 
 /**
 *   Add the external page plugin to the available search types
-*   @return array   name => name text
+*
+*   @return array   pi_name => title
 */
 function plugin_searchtypes_external() 
 {
@@ -230,8 +231,7 @@ function plugin_dopluginsearch_external(
 
 
 /**
-*   This will put an option for the plugin in the command and 
-*   control block on moderation.php
+*   This will put an option for the plugin in command and control.
 *   Add the plugin name, icon and link to the command and control 
 *   block in moderation.php.
 *
@@ -251,8 +251,9 @@ function plugin_cclabel_external()
 
 
 /**
-* Returns the URL of the plugin's icon
-* @return   string      URL of the icon
+*   Returns the URL of the plugin's icon
+*
+*   @return string      URL of the icon
 */
 function plugin_geticon_external()
 {
@@ -261,9 +262,10 @@ function plugin_geticon_external()
 
  
 /**
-* Returns the administrative option for this plugin
-* Adds the plugin to the Admin menu
-* @return   array   (plugin name, plugin admin url, # of items in plugin or '')
+*   Returns the administrative option for this plugin
+*   Adds the plugin to the Admin menu
+*
+*   @return array   (plugin name, plugin admin url, # of items in plugin or '')
 */
 function plugin_getadminoption_external() 
 {
@@ -278,14 +280,9 @@ function plugin_getadminoption_external()
 
 
 /**
-* Automatic uninstall function for plugins
+*   Get an array of items to remove during plugin removal.
 *
-* This code is automatically uninstalling the plugin.
-* It passes an array to the core code function that removes
-* tables, groups, features and php blocks from the tables.
-* Additionally, this code can perform special actions that cannot be
-* foreseen by the core code (interactions with other plugins for example)
-* @return   array
+*   @return array
 */
 function plugin_autouninstall_external()
 {
@@ -307,7 +304,8 @@ function plugin_autouninstall_external()
 
 /**
 *   Upgrade the plugin
-*   @return boolean True on success, error code on failure
+*
+*   @return boolean     True on success, error code on failure
 */
 function plugin_upgrade_external() 
 {
@@ -360,11 +358,34 @@ function plugin_upgrade_external()
 
 /**
 *   Group selection for the default group assigned to new pages
+*
 *   @return array   name => id array of groups
 */
 function plugin_configmanager_select_defgrp_external()
 {
     return EXP_getGroups('\'All Users\'', 'NOT');
+}
+
+
+/**
+*   User selection for the default user assigned to new pages
+*
+*   @return array   name => id array of users
+*/
+function plugin_configmanager_select_defuser_external()
+{
+    global $_TABLES;
+
+    $A = array();
+
+    $query = "SELECT uid, username FROM {$_TABLES['users']}";
+    $result = DB_query($query);
+    if ($result && DB_numRows($result) > 0) {
+        while ($row = DB_fetchArray($result)) {
+            $A[$row['username']] = $row['uid'];
+        }
+    }
+    return $A;
 }
 
 
@@ -423,29 +444,35 @@ function EXP_externalAccess($page)
     $retval = false;
 
     $page = DB_escapeString($page);
-    $sql = "SELECT * 
-            FROM {$_TABLES['external']} 
-            WHERE 
-                url='$page' 
-            OR 
-                url='{$_CONF['site_url']}/{$page}'";
+    $sql = "SELECT * FROM {$_TABLES['external']} WHERE title='$page'"; 
     $recs = DB_query($sql,1);
     if (DB_numRows($recs) > 0) {
+        // Have to check access from the returned record rather than as part
+        // of the query. If a user doesn't have access, the query would return
+        // an empty set which would act like a new page being added with default
+        // access.
         $A = DB_fetchArray($recs);
-        $retval = SEC_hasAccess($A['owner_id'], $A['group_id'], 
+        $access = SEC_hasAccess($A['owner_id'], $A['group_id'], 
                 $A['perm_owner'], $A['perm_group'], 
                 $A['perm_members'], $A['perm_anon']);
+        if ($access == 0)
+            // No access, return false without updating hit counter
+            return false;
+        else
+            $retval = true;
         $sql = "UPDATE {$_TABLES['external']} SET 
                 hits = hits+1 
                 WHERE exid={$A['exid']}";
         DB_query($sql,1);
     } else {
+        $url = $_SERVER['REQUEST_SCHEME'] . '://' .
+            $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME'];
         $sql = "INSERT INTO {$_TABLES['external']} 
                 SET 
-                    url='$page', 
                     title='$page', 
+                    url='" . DB_escapeString($url) . "', 
                     hits=1,
-                    owner_id=".(int)$_USER['uid'].",
+                    owner_id=".(int)$_CONF_EXP['defuser'].",
                     group_id=".(int)$_CONF_EXP['defgrp'].",
                     perm_owner=".(int)$_CONF_EXP['default_permissions'][0].",
                     perm_group=".(int)$_CONF_EXP['default_permissions'][1].",
@@ -456,6 +483,5 @@ function EXP_externalAccess($page)
     }
     return $retval;
 }
-
 
 ?>

@@ -1,10 +1,11 @@
 <?php
 /**
 *   Installation defaults for the External Pages plugin
+*
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
 *   @package    external
-*   @version    1.0
+*   @version    1.0.2
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
 *               GNU Public License v2 or later
 *   @filesource
@@ -24,26 +25,24 @@ if (!defined('GVERSION')) {
  *
  */
 global $_EXP_DEFAULT, $_CONF_EXP;
-$_EXP_DEFAULT = array();
+$_EXP_DEFAULT = array(
+    'show' => true,
+    'default_permissions' => array (3, 3, 2, 2),
 
-$_EXP_DEFAULT['show'] = true;
-
-// Set the default permissions
-$_EXP_DEFAULT['default_permissions'] =  array (3, 3, 2, 2);
-
-// Set the default group ID for page access
-$_EXP_DEFAULT['defgrp'] = 13;
+    'defgrp' => 13,     // Set the default group ID for page access
+    'defuser' => 2,     // default user = admin
+);
 
 /**
- *  Initialize External Pages plugin configuration
- *
- *  Creates the database entries for the configuation if they don't already
- *  exist. Initial values will be taken from $_CONF_EXP if available (e.g. from
- *  an old config.php), uses $_EXP_DEFAULT otherwise.
- *
- *  @param  integer $group_id   Group ID to use as the plugin's admin group
- *  @return boolean             true: success; false: an error occurred
- */
+*   Initialize External Pages plugin configuration
+*
+*   Creates the database entries for the configuation if they don't already
+*   exist. Initial values will be taken from $_CONF_EXP if available (e.g. from
+*   an old config.php), uses $_EXP_DEFAULT otherwise.
+*
+*   @param  integer $group_id   Group ID to use as the plugin's admin group
+*   @return boolean             true: success; false: an error occurred
+*/
 function plugin_initconfig_external($group_id = 0)
 {
     global $_CONF, $_CONF_EXP, $_EXP_DEFAULT;
@@ -67,13 +66,14 @@ function plugin_initconfig_external($group_id = 0)
                 'select', 0, 0, 0, 10, true, $_CONF_EXP['pi_name']);
 
         $c->add('fs_permissions', NULL, 'fieldset', 0, 4, NULL, 0, true, $_CONF_EXP['pi_name']);
+        $c->add('defuser', $_EXP_DEFAULT['defuser'],
+                'select', 0, 4, 0, 80, true, $_CONF_EXP['pi_name']);
         $c->add('defgrp', $group_id,
                 'select', 0, 4, 0, 90, true, $_CONF_EXP['pi_name']);
         $c->add('default_permissions', $_EXP_DEFAULT['default_permissions'],
                 '@select', 0, 4, 12, 100, true, $_CONF_EXP['pi_name']);
 
     }
-
     return true;
 }
 

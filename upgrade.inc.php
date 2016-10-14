@@ -1,30 +1,41 @@
 <?php
 /**
-*   Upgrade the plugin
+*   Upgrade the External Pages plugin
+*
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
 *   @package    external
-*   @version    1.0
+*   @version    1.0.2
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
-*   GNU Public License v2 or later
+*               GNU Public License v2 or later
 *   @filesource
 */
 
 global $_CONF, $_CONF_EXP, $_DB_dbms;
 
 /** Include default values for new config items */
-//require_once "{$_CONF['path']}plugins/{$_CONF_EXP['pi_name']}/install_defaults.php";
+require_once "{$_CONF['path']}plugins/{$_CONF_EXP['pi_name']}/install_defaults.php";
 
 /**
 *   Sequentially perform version upgrades.
-*   @param current_ver string Existing installed version to be upgraded
-*   @return integer Error code, 0 for success
+*
+*   @param  string  $current_ver    Existing installed version to be upgraded
+*   @return integer                 Error code, 0 for success
 */
 function EXP_upgrade($current_ver)
 {
+    global $_CONF_EXP, $_EXP_DEFAULT;
+
     $error = 0;
 
+    $c = config::get_instance();
+
     // < 1.0 -> 1.0 : Nothing to do
+    if ($current_ver < '1.0.2') {
+        $c->add('defuser', $_EXP_DEFAULT['defuser'],
+                'select', 0, 4, 0, 80, true, $_CONF_EXP['pi_name']);
+    }
+
     return $error;
 
 }
@@ -68,6 +79,5 @@ function EXP_upgrade_sql($version='Undefined', $sql='')
     return 0;
 
 }
-
 
 ?>
