@@ -1,10 +1,10 @@
 <plugin>
     <id>external</id>
     <name>External Pages</name>
-    <description>This plugin allows you to include external pages in the Geeklog Security, search and statistics tracking.  This is done by adding a few lines of code to the top of your external pages.</description>
-    <version>1.0.1</version>
-    <glfusionversion>1.2.0</glfusionversion>
-    <phpversion>4.3.0</phpversion>
+    <description>This plugin allows you to include external pages in the glFusion security, search and statistics tracking.  This is done by adding a few lines of code to the top of your external pages.</description>
+    <version>1.0.2</version>
+    <glfusionversion>1.4.0</glfusionversion>
+    <phpversion>5.3.0</phpversion>
     <url>www.leegarner.com</url>
     <maintainer>Lee Garner</maintainer>
 </plugin>

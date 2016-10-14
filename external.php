@@ -5,9 +5,9 @@
 *   @author     Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
 *   @package    external
-*   @version    1.0.1
+*   @version    1.0.2
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
-*   GNU Public License v2 or later
+*               GNU Public License v2 or later
 *   @filesource
 *
 *   Based on the External Pages Plugin 1.0 for Geeklog 1.3.6
@@ -32,7 +32,7 @@ $_EXP_table_prefix = $_DB_table_prefix;
 $_TABLES['external'] = $_EXP_table_prefix . 'external';
 
 $_CONF_EXP['pi_name'] = 'external';
-$_CONF_EXP['pi_version'] = '1.0.1';
+$_CONF_EXP['pi_version'] = '1.0.2';
 $_CONF_EXP['gl_version'] = '1.2.0';
 $_CONF_EXP['pi_url'] = 'http://www.leegarner.com';
 $_CONF_EXP['pi_display_name'] = 'External Pages';
