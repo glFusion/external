@@ -4,6 +4,7 @@
 *   Use this template for HTML content that is to be rendered within
 *   the glFusion framework.  This requires that your web server be able
 *   to execute PHP within HTML pages.
+*
 *   @author     Lee Garner <lee@leegarner.com>
 *   @author     Tom Willett <tomw@pigstye.net>
 *   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
@@ -21,22 +22,14 @@
 */
 require_once 'lib-common.php';
 
-/** You should change the "$page_name" to the actual file name
-*   or full URL here.  
-*   If this page is outside of your glFusion webroot, then use the 
-*   full URL or you'll have to edit it in glFusion later.
-*/
+// $page_name is a unique ID for this page. The default is the name of the script, but
+// you can use another value, e.g.:
+// $page_name = $_SERVER['REQUEST_SCHEME'] . '://' .
+//            $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME'];
 $page_name = substr($_SERVER['SCRIPT_NAME'], 1);
 
 if (!EXP_externalAccess($page_name)) {
-    $display = COM_siteHeader('menu');
-    $display .= COM_startBlock($LANG_EX00['access_denied']);
-    $display .= '<div align="center"><b>' . 
-                $LANG_EX00['access_msg'] . 
-                '</b></div>';
-    $display .= COM_endBlock();
-    $display .= COM_siteFooter(yes);
-    echo $display;
+    echo COM_404();
     exit;
 }
   

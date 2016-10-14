@@ -25,22 +25,16 @@
 */
 require_once('lib-common.php');
 
-/** You should change the "$page_name" to the actual file name
-*   or full URL here.  
-*   If this page is outside of your glFusion webroot, then use the 
-*   full URL or you'll have to edit it in glFusion later.
-*/
+// $page_name is a unique ID for this page. The default is the name of the script, but
+// you can use another value, e.g.:
+// $page_name = $_SERVER['REQUEST_SCHEME'] . '://' .
+//            $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME'];
 $page_name = substr($_SERVER['SCRIPT_NAME'], 1);
 
 $display = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">";
 $display .= "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">";
 if (!EXP_externalAccess($page_name)) {
-    $display = "<title>{$LANG_EX00['access_denied']}</title></head><body>\n";
-    $display .= '<div align="center"><b>' . 
-                $LANG_EX00['access_msg'] . 
-                '</b></div>';
-    $display .= "</body></html>";
-    echo $display;
+    echo COM_404();
     exit;
 }
 
