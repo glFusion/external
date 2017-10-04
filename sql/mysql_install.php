@@ -29,7 +29,6 @@ $NEWTABLE['external'] = "CREATE TABLE {$_TABLES['external']} (
     perm_members tinyint(1) unsigned DEFAULT '2' NOT NULL,
     perm_anon tinyint(1) unsigned DEFAULT '2' NOT NULL,
     PRIMARY KEY exid(exid)
-    )";
-
+    ) ENGINE=MyISAM";
 
 ?>
