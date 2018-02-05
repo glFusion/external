@@ -8,7 +8,7 @@
 *   @copyright  Copyright (c) 2002 Tom Willett <tomw@pigstye.net>
 *   @package    external
 *   @version    1.0.2
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
+*   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
 *
@@ -38,8 +38,9 @@ if (!isset($_CONF_EXP['show'])) {
 require_once "{$_CONF['path']}plugins/external/external.php";
 define('EXP_PI_PATH', $_CONF['path'].'/plugins/'.$_CONF_EXP['pi_name']);
 define('EXP_URL', $_CONF['site_url'].'/'.$_CONF_EXP['pi_name']);
-define('EXP_ADMIN_URL', 
+define('EXP_ADMIN_URL',
         $_CONF['site_admin_url'] . '/plugins/' . $_CONF_EXP['pi_name']);
+$_CONF_EXP['_is_uikit'] = $_SYSTEM['framework'] == 'uikit' ? true : false;
 
 if (file_exists(EXP_PI_PATH . '/config.php')) {
     /** Include local configuration overrides */
@@ -58,6 +59,17 @@ if (file_exists("$langpath/custom/$langfile")) {
     /** Include the custom language file, if any */
     include_once "$langpath/custom/$langfile";
 }
+
+spl_autoload_register(function ($class)
+{
+    if (strpos($class, 'External\\') === 0) {
+        $class = str_replace('External\\', '', $class);
+        $path = __DIR__ . '/classes/' . $class . '.class.php';
+        if (file_exists($path)) {
+            include $path;
+        }
+    }
+});
 
 
 function USES_external_upgrade()
@@ -79,12 +91,12 @@ function plugin_chkVersion_external()
 
 
 /**
-*   Show the statistics for the external files plugin on stats.php.  
+*   Show the statistics for the external files plugin on stats.php. 
 *   If $showsitestats is 1 then we are to only print the overall stats .
 *
 *   @param  integer showsitestats   Flag to let us know which stats to get
 */
-function plugin_showstats_external($showsitestats) 
+function plugin_showstats_external($showsitestats)
 {
     global $LANG_EX00, $_CONF, $_TABLES;
 
@@ -97,10 +109,10 @@ function plugin_showstats_external($showsitestats)
         $retval .= "<tr><td>{$LANG_EX00['externpages']}</td>";
         $retval .= "<td align='right'>" . $total_pages . "&nbsp;&nbsp </td></tr></table>";
     } else {
-        $result = DB_query("SELECT url, title, hits 
-                FROM {$_TABLES['external']} 
-                WHERE hits > 0 
-                ORDER BY hits DESC 
+        $result = DB_query("SELECT url, title, hits
+                FROM {$_TABLES['external']}
+                WHERE hits > 0
+                ORDER BY hits DESC
                 LIMIT 10");
         $nrows  = DB_numRows($result);
         $retval .= COM_startBlock($LANG_EX00['topten'] . $LANG_EX00['externpages']);
@@ -116,7 +128,7 @@ function plugin_showstats_external($showsitestats)
                 }
                 $stat_templates->set_var('item_text', stripslashes($A['title']));
                 $stat_templates->set_var('item_stat', $A['hits']);
-                $stat_templates->parse('stat_row','statrow',true); 
+                $stat_templates->parse('stat_row','statrow',true);
             }
             $stat_templates->parse('output','itemstats');
             $retval .= $stat_templates->finish($stat_templates->get_var('output'));
@@ -134,7 +146,7 @@ function plugin_showstats_external($showsitestats)
 *
 *   @return array   pi_name => title
 */
-function plugin_searchtypes_external() 
+function plugin_searchtypes_external()
 {
     global $LANG_EX00;
 
@@ -144,8 +156,179 @@ function plugin_searchtypes_external()
 
 
 /**
-*   Searches for pages matching the user query and returns an array of 
-*   for the header and table rows back to search.php where it will be 
+*   Provides the getItemInfo function for daily quotes
+*
+*   @param  string  $id         Product ID
+*   @param  string  $fields     Comma-separated list of fields to return
+*   @param  integer $uid        User ID
+*   @param  array   $options    Not used
+*   @return array           Array of product information
+*/
+function plugin_getiteminfo_external($id, $what, $uid=0, $options=array())
+{
+    global $_TABLES, $_CONF, $LANG_EX00;
+
+    $properties = explode(',', $what);
+    $fields = array();
+    $retval = array();
+    $buildingSearchIndex = false;
+    $getContent = false;
+    foreach ($properties as $p) {
+        switch ($p) {
+        case 'search_index':
+            $buildingSearchIndex = true;
+            $fields[] = 'url';
+            break;
+        case 'id':
+            $fields[] = 'exid';
+            break;
+        case 'title':
+            $fields[] = 'title';
+            break;
+        case 'content':
+        case 'description':
+            $fields[] = 'url';
+            $buildingSearchIndex = true;
+            $getContent = true;
+            break;
+        case 'searchidx':
+            $fields[] = 'title';
+            $fields[] = 'url';
+            $buildingSearchIndex = true;
+            $getContent = true;
+            break;
+        case 'url':
+            $fields[] = 'url';
+            break;
+        case 'author':
+        case 'author_name':
+            $fields[] = 'owner_id';
+            break;
+        }
+    }
+    if (count($fields) == 0) {
+        if (!$buildingSearchIndex) {
+            return $retval;
+        } else {
+            $fields[] = 'exid';
+        }
+    }
+    $fields = array_unique($fields);
+    $fields = implode(',', $fields);
+    $retval = array();
+    $sql = "SELECT $fields FROM {$_TABLES['external']} WHERE 1=1 ";
+    if ($id != '*') {
+        $sql .= " AND (exid = '" . DB_escapeString($id) . "')";
+    }
+    if ($buildingSearchIndex) {
+        $sql .= " AND perm_anon > 1";
+    }
+
+    //COM_errorLog($sql);
+    $res = DB_query($sql);
+    while ($A = DB_fetchArray($res, false)) {
+        $contents = '';
+        if (isset($A['url'])) {
+            if (strpos($A['url'], $_CONF['site_url']) === false) {
+                if ($A['url'][0] != '/') $A['url'] = '/' . $A['url'];
+                $A['url'] = $_CONF['site_url'] . $A['url'];
+            }
+            if ($getContent) {
+                $ch = curl_init();
+                if ($ch) {
+                    curl_setopt($ch, CURLOPT_URL, $A['url']);
+                    // we want to get the contents of the URL and store it in a variable
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                    // specify the useragent: this is a required courtesy to site owners
+                    curl_setopt($ch, CURLOPT_USERAGENT, 'cURL');
+                    // ignore SSL errors
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                    // Do not follow redirects
+                    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0); 
+                    curl_setopt($ch, CURLOPT_ENCODING, 'gzip');
+                    $result = curl_exec($ch);
+                    curl_close($ch);
+                    $contents = strip_tags($result);;
+                }
+            }
+        }
+        foreach ($properties as $p) {
+            switch ($p) {
+            case 'id':
+                $props[$p] = $A['exid'];
+                break;
+            case 'excerpt':
+            case 'description':
+            case 'content':
+                $props[$p] = $contents;
+                break;
+            case 'title':
+                $props[$p] = empty($A['title']) ? $LANG_DQ['untitled'] : $A['title'];
+                break;
+            case 'author':
+                $props[$p] = $A['owner_id'];
+                break;
+            case 'author_name':
+                $props[$p] = COM_getDisplayName($A['owner_id']);
+                break;
+            case 'searchidx':
+                $props[$p] = $A['title'] . ' ' . $contents;
+                break;
+            case 'url':
+                $props[$p] = $A['url'];
+                break;
+            default:
+                $props[$p] = isset($A[$p]) ? $A[$p] : NULL;
+                break;
+            }
+        }
+        $mapped = array();
+        foreach ($props as $key => $value) {
+            if ($id == '*') {
+                if ($value != '') {
+                    $mapped[$key] = $value;
+                }
+            } else {
+                $mapped[$key] = $value;
+            }
+        }
+
+        if ($id == '*') {
+            $retval[] = $mapped;
+        } else {
+            $retval = $mapped;
+            break;
+        }
+    }
+
+    if (($id != '*') && (count($retval) == 1)) {
+        $tRet = array_values($retval);
+        $retval = $tRet[0];
+    }
+    if ($retval === '' || (is_array($retval) && count($retval) == 0)) {
+        return NULL;
+    } else {
+        return $retval;
+    }
+}
+
+
+function EXT_getContents($url)
+{
+    if (preg_match("/^(http:\/\/)/i",$url) == 1) {
+        $pth = $url;
+        $url = $url;
+    } else {
+        $pth = $_CONF['path_html'] . $url;
+        $url = $_CONF['site_url'] . '/' . $url;
+    }
+    $cnts = @file_get_contents($pth);
+}
+
+
+/**
+*   Searches for pages matching the user query and returns an array of
+*   for the header and table rows back to search.php where it will be
 *   formated and printed.
 *
 *   @param  string  query       Keywords user is looking for
@@ -156,11 +339,11 @@ function plugin_searchtypes_external()
 *   @param  string  author      Get all results by this author
 */
 function plugin_dopluginsearch_external(
-    $query, 
-    $datestart, 
-    $dateend, 
-    $topic, 
-    $type, 
+    $query,
+    $datestart,
+    $dateend,
+    $topic,
+    $type,
     $author
 ) {
 	global $_TABLES, $_CONF, $LANG_EX00;
@@ -181,7 +364,7 @@ function plugin_dopluginsearch_external(
     // Build search SQL - Modified to exclude static PHP pages from search.
     $sql = "SELECT * from {$_TABLES['external']}";
     $result = DB_query($sql);
-    
+   
     // OK, now create new plugin object and insert table header labels
     require_once($_CONF['path_system'] . 'classes/plugin.class.php');
     $plugin_results = new Plugin();
@@ -192,7 +375,7 @@ function plugin_dopluginsearch_external(
     $plugin_results->addSearchHeading($LANG_EX00['hitsmsg']);
     $mycount = DB_numRows($result);
 
-    // NOTE if any of your data items need to be links then add them here! 
+    // NOTE if any of your data items need to be links then add them here!
     // make sure data elements are in an array and in the same order as your
     // headings above!
 	for ($i = 1; $i <= $mycount; $i++) {
@@ -232,12 +415,12 @@ function plugin_dopluginsearch_external(
 
 /**
 *   This will put an option for the plugin in command and control.
-*   Add the plugin name, icon and link to the command and control 
+*   Add the plugin name, icon and link to the command and control
 *   block in moderation.php.
 *
 *   @return   array   Array (plugin name, admin url, url of plugin icon)
 */
-function plugin_cclabel_external() 
+function plugin_cclabel_external()
 {
     global $_CONF, $LANG_EX00;
 
@@ -260,20 +443,20 @@ function plugin_geticon_external()
     return EXP_URL . '/images/external.png';
 }
 
- 
+
 /**
 *   Returns the administrative option for this plugin
 *   Adds the plugin to the Admin menu
 *
 *   @return array   (plugin name, plugin admin url, # of items in plugin or '')
 */
-function plugin_getadminoption_external() 
+function plugin_getadminoption_external()
 {
     global $_TABLES, $LANG_EX00;
 
     if (SEC_hasRights('external.admin')) {
-        return array($LANG_EX00['externpages'], 
-                EXP_ADMIN_URL . '/index.php', 
+        return array($LANG_EX00['externpages'],
+                EXP_ADMIN_URL . '/index.php',
                 DB_count($_TABLES['external']));
     }
 }
@@ -307,7 +490,7 @@ function plugin_autouninstall_external()
 *
 *   @return boolean     True on success, error code on failure
 */
-function plugin_upgrade_external() 
+function plugin_upgrade_external()
 {
     global $_TABLES, $_CONF_EXP;
 
@@ -436,7 +619,7 @@ function EXP_getGroups($grplist='', $NOT='')
 *   @param    string    $page   Page to check
 *   @return   boolean           True if has access, False otherwise
 */
-function EXP_externalAccess($page) 
+function EXP_externalAccess($page)
 {
     global $_TABLES, $_CONF, $_CONF_EXP, $_USER;
 
@@ -444,7 +627,7 @@ function EXP_externalAccess($page)
     $retval = false;
 
     $page = DB_escapeString($page);
-    $sql = "SELECT * FROM {$_TABLES['external']} WHERE title='$page'"; 
+    $sql = "SELECT * FROM {$_TABLES['external']} WHERE title='$page'";
     $recs = DB_query($sql,1);
     if (DB_numRows($recs) > 0) {
         // Have to check access from the returned record rather than as part
@@ -452,25 +635,25 @@ function EXP_externalAccess($page)
         // an empty set which would act like a new page being added with default
         // access.
         $A = DB_fetchArray($recs);
-        $access = SEC_hasAccess($A['owner_id'], $A['group_id'], 
-                $A['perm_owner'], $A['perm_group'], 
+        $access = SEC_hasAccess($A['owner_id'], $A['group_id'],
+                $A['perm_owner'], $A['perm_group'],
                 $A['perm_members'], $A['perm_anon']);
         if ($access == 0)
             // No access, return false without updating hit counter
             return false;
         else
             $retval = true;
-        $sql = "UPDATE {$_TABLES['external']} SET 
-                hits = hits+1 
+        $sql = "UPDATE {$_TABLES['external']} SET
+                hits = hits+1
                 WHERE exid={$A['exid']}";
         DB_query($sql,1);
     } else {
         $url = $_SERVER['REQUEST_SCHEME'] . '://' .
             $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME'];
-        $sql = "INSERT INTO {$_TABLES['external']} 
-                SET 
-                    title='$page', 
-                    url='" . DB_escapeString($url) . "', 
+        $sql = "INSERT INTO {$_TABLES['external']}
+                SET
+                    title='$page',
+                    url='" . DB_escapeString($url) . "',
                     hits=1,
                     owner_id=".(int)$_CONF_EXP['defuser'].",
                     group_id=".(int)$_CONF_EXP['defgrp'].",
@@ -482,6 +665,32 @@ function EXP_externalAccess($page)
         $retval = true;
     }
     return $retval;
+}
+
+/**
+*   Helper function to get a template object.
+*
+*   @param  string  $name   Base name of template, e.g. "editor"
+*   @param  string  $id     ID of template, e.g. "editform"
+*   @param  string  $path   Optional path if not "templates/"
+*   @return string      Full filename, e.g. "editor.uikit.thtml"
+*/
+function EXP_getTemplate($name, $id, $path='')
+{
+    global $_CONF_EXP;
+
+    // May use "switch" later, for now there are only two options
+    $tpltype = $_CONF_EXP['_is_uikit'] ? '.uikit' : '';
+    $filename = "$name$tpltype.thtml";
+    if (substr($path, 0, 9) != 'templates') {
+        $path = 'templates/' . $path;
+    }
+    if (!file_exists(__DIR__ . "/$path/$filename")) {
+        $filename = "$name.thtml";
+    }
+    $T = new Template(__DIR__ . '/' . $path);
+    $T->set_file($id, $filename);
+    return $T;
 }
 
 ?>

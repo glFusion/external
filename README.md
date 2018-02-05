@@ -1,6 +1,5 @@
-External Pages plugin for glFusion
-===
-Copyright 2009 - 2016 by Lee Garner  lee@leegarner.com
+# External Pages plugin for glFusion
+Copyright 2009 - 2018 by Lee Garner  lee@leegarner.com
 
 Based on the External Pages plugin for Geeklog 1.3.6, version 1.0.
 Copyright 2002 by Tom Willett tom2@pigsty.net
@@ -19,8 +18,7 @@ Features:
   the glFusion header and footer and those that do not.
 
 At the least each External Page must contain the following code at the top of the page.
-For your convenience, some templates are included in the private/plugins/exterla/externalpages_templates
-directory.
+For your convenience, some templates are included in the `private/plugins/exterla/externalpages_templates` directory.
 
 ```php
 // Change to the location of your lib-common.php
@@ -36,18 +34,18 @@ if (!EXP_externalAccess($page_name)) {
     exit;
 }
 ```
-If your page is to be wrapped in the glFusion site, add a call to "echo COM_siteHeader()" in the above code,
-and add a call to "echo COM_siteFooter();" at the end of the content. Check the example templates for details.
+If your page is to be wrapped in the glFusion site, add a call to `echo COM_siteHeader()` in the above code,
+and add a call to `echo COM_siteFooter();` at the end of the content. Check the example templates for details.
 
 Notes:
-* The title field (the $page_name in the above example) is used as the key
+* The title field (`$page_name` in the above example) is used as the key
 for looking up pages or creating new database entries. This should be unique.
 * For each External Page the plugin creates a database record that contains the name of the page,
   a title used to identify it, a hit counter, and the security info.
 * A page is automatically added if it is called and is not already in the system. The administrator
   can edit the record that is created to change the security.
 * For a normal page just the url to the page would be used, for a php page that has dynamic content
-  then the full url should be used (e.g. http://www.your.site/page.php). If the full url is used then 
+  then the full url should be used (e.g. `http://www.your.site/custompage.php`). If the full url is used then 
   the php is executed and a search would be performed on the result.
 * You can use this with a pure html page, but it would have to be converted to a php page to handle
   the header. See the phphtml.php template. Alternatively you can configure your

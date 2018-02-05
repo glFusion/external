@@ -2,10 +2,10 @@
 /**
 *   Automatically install the External Pages plugin
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2018 Lee Garner <lee@leegarner.com>
 *   @package    external
-*   @version    1.0
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
+*   @version    1.0.2
+*   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
 */
@@ -16,9 +16,9 @@ if (!defined ('GVERSION')) {
 
 global $_DB_dbms;
 /** Import core glFusion libraries */
-require_once $_CONF['path'].'plugins/external/functions.inc';
+require_once __DIR__ . '/functions.inc';
 /** Import plugin database definition */
-require_once $_CONF['path'].'plugins/external/sql/'. $_DB_dbms. '_install.php';
+require_once __DIR__ . '/sql/'. $_DB_dbms. '_install.php';
 
 
 /** Plugin installation options
@@ -79,7 +79,6 @@ function plugin_install_external()
     if ($ret > 0) {
         return false;
     }
-
     return true;
 }
 
@@ -97,7 +96,7 @@ function plugin_load_configuration_external()
     require_once $_CONF['path'].'plugins/'.$_CONF_EXP['pi_name'].'/install_defaults.php';
 
     // Get the admin group ID that was saved previously.
-    $group_id = (int)DB_getItem($_TABLES['groups'], 'grp_id', 
+    $group_id = (int)DB_getItem($_TABLES['groups'], 'grp_id',
             "grp_name='{$_CONF_EXP['pi_name']} Admin'");
 
     return plugin_initconfig_external($group_id);

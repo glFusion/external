@@ -3,7 +3,7 @@
 *   Table definitions and other static config variables.
 *
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2018 Lee Garner <lee@leegarner.com>
 *   @package    external
 *   @version    1.0.2
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
@@ -33,7 +33,7 @@ $_TABLES['external'] = $_EXP_table_prefix . 'external';
 
 $_CONF_EXP['pi_name'] = 'external';
 $_CONF_EXP['pi_version'] = '1.0.2';
-$_CONF_EXP['gl_version'] = '1.2.0';
+$_CONF_EXP['gl_version'] = '1.6.0';
 $_CONF_EXP['pi_url'] = 'http://www.leegarner.com';
 $_CONF_EXP['pi_display_name'] = 'External Pages';
 

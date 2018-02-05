@@ -1,6 +1,8 @@
 External Pages - Change Log
 
 * version 1.0.2
+  * Implement Page class and class autoloader
+  * Supports glFusion 1.6.0 or higher
   * Add default user configuration item
   
 * version 0.1.1

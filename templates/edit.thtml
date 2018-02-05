@@ -1,30 +1,55 @@
-<a href="{site_admin_url}/plugins/{plugin}/index.php"><img src="{site_url}/{plugin}/images/{plugin}.gif" border="0"></a>
-&nbsp;&nbsp; <b><font size="4"> {header} </font></b>
-<form method='POST' action='{site_admin_url}/plugins/external/edit.php'>
-<table><tr>
-<td>{exidmsg}</td><td>{exid}<input type="hidden" value="{exid}" name="exid"></td>
-</tr><tr>
-<td>{titlemsg}</td><td><input type="text" value="{title}" name="title"></td>
-</tr><tr>
-<td>{urlmsg}</td><td><input type="text" value="{url}" name="url"></td>
-</tr><tr>
-<td>{hitsmsg}</td><td><input type="text" value="{hits}" name="hits"></td>
-</tr><tr>
-<td align="right">{lang_owner}:</td>
-<td>{owner_username} {owner_id}</td>
-</tr><tr>
-<td align="right">{lang_group}:</td><td>{group_dropdown}</td>
-</tr><tr>
-<td colspan="2">&nbsp;</td>
-</tr><tr>
-<td colspan="2"><b>{lang_permissions}</b>:</td>
-</tr><tr>
-<td colspan="2">{lang_perm_key}</td>
-</tr><tr><td colspan="2">{perms}</td></tr></table>
-<hr>
-<div align="center">
-<input type="submit" name="action" value="{save}">&nbsp;&nbsp;&nbsp;
-<input type="submit" name="action" value="{delete}">&nbsp;&nbsp;&nbsp;
-<input type="submit" name="action" value="{cancel}">
-</div>
+{# begin {templatelocation} #}
+<h2>
+  <a href="{site_admin_url}/plugins/{plugin}/index.php"><img src="{pi_icon}" border="0"></a>&nbsp;&nbsp;{header}
+</h2>
+<form method="post" action='{site_admin_url}/plugins/external/index.php' class="uk-form-horizontal">
+  <table>
+    <tr>
+      <td>{exidmsg}</td><td>{exid}<input type="hidden" value="{exid}" name="exid"></td>
+    </tr>
+    <tr>
+      <td>{titlemsg}</td><td><input type="text" value="{title}" name="title"></td>
+    </tr>
+    <tr>
+      <td>{urlmsg}</td><td><input type="text" value="{url}" name="url"></td>
+    </tr>
+    <tr>
+      <td>{hitsmsg}</td><td><input type="text" value="{hits}" name="hits"></td>
+    </tr>
+    <tr>
+      <td align="right">{lang_owner}:</td>
+      <td>
+        <select name="owner_id">
+            {owner_dd}
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td align="right">{lang_group}:</td>
+      <td>
+        <select name="group_id">
+            {group_dd}
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">&nbsp;</td>
+    </tr>
+    <tr>
+      <td colspan="2"><b>{lang_permissions}</b>:</td>
+    </tr>
+    <tr>
+      <td colspan="2">{lang_perm_key}</td>
+    </tr>
+    <tr>
+      <td colspan="2">{perms}</td>
+    </tr>
+  </table>
+  <hr />
+  <div align="center">
+    <input type="submit" name="action" value="{save}">&nbsp;&nbsp;&nbsp;
+    <input type="submit" name="action" value="{delete}">&nbsp;&nbsp;&nbsp;
+    <input type="submit" name="action" value="{cancel}">
+  </div>
 </form>
+{# end {templatelocation} #}
