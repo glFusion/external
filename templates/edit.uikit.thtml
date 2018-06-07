@@ -3,7 +3,7 @@
   <a href="{site_admin_url}/plugins/{plugin}/index.php"><img src="{pi_icon}" border="0"></a>&nbsp;&nbsp;{header}
 </h2>
 
-<form method="post" action='{site_admin_url}/plugins/external/index.php' class="uk-form-horizontal">
+<form method="post" action='{site_admin_url}/plugins/external/index.php' class="uk-form uk-form-horizontal">
 <input type="hidden" name="exid" value="{exid}" />
 <fieldset>
   <div class="uk-form-row">
