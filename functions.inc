@@ -378,6 +378,7 @@ function plugin_dopluginsearch_external(
     // NOTE if any of your data items need to be links then add them here!
     // make sure data elements are in an array and in the same order as your
     // headings above!
+    $rcnt = 0;
 	for ($i = 1; $i <= $mycount; $i++) {
         $A = DB_fetchArray($result);
 
@@ -402,13 +403,13 @@ function plugin_dopluginsearch_external(
                       '<a href="' . $url . '">' . $A['url'] . "</a>",
                      $A['hits']);*/
                 $plugin_results->addSearchResult($row);
+                $rcnt++;
             }
   	    }
 	
 	}
     $plugin_results->num_searchresults = $rcnt;
     $plugin_results->num_itemssearched = DB_count($_TABLES['external']);
-
     return $plugin_results;
 }
 
