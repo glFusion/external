@@ -1,11 +1,11 @@
 <?php
 /**
-
+*   Class to handle External Page objects.
 *
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2017Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2017-2018 Lee Garner <lee@leegarner.com>
 *   @package    external
-*   @version    1.0.1
+*   @version    1.0.2
 *   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
@@ -16,6 +16,13 @@ class Page
 {
     private $properties = array();
 
+
+    /**
+    *   Constructor
+    *   Read a record if an ID value is provided
+    *
+    *   @param  integer $exid   Optional record ID
+    */
     public function __construct($exid=0)
     {
         global $_CONF_EXP;
@@ -37,6 +44,12 @@ class Page
     }
  
 
+    /**
+    *   Setter function. Sets the value of a property
+    *
+    *   @param  string  $key    Name of property
+    *   @param  mixed   $value  Value to set
+    */
     public function __set($key, $value)
     {
         switch ($key) {
@@ -57,6 +70,14 @@ class Page
         }
     }
 
+
+    /**
+    *   Getter function.
+    *   Returns a property value, or NULL if undefined.
+    *
+    *   @param  string  $key    Name of property
+    *   @return mixed       Value of property, or NULL
+    */
     public function __get($key)
     {
         if (array_key_exists($key, $this->properties)) {
@@ -183,7 +204,7 @@ class Page
     public static function Delete($exid)
     {
         global $_TABLES;
-        DB_delete($_TABLES['external'], 'exid', $exid);
+        DB_delete($_TABLES['external'], 'exid', (int)$exid);
     }
 
 }
