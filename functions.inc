@@ -71,15 +71,6 @@ spl_autoload_register(function ($class)
 
 
 /**
- * Import the upgrade functions.
- */
-function USES_external_upgrade()
-{
-    require_once EXP_PI_PATH .'/upgrade.inc.php';
-}
-
-
-/**
  * Get the currently installed version.
  *
  * @return  string  Plugin version
@@ -92,7 +83,7 @@ function plugin_chkVersion_external()
 
 
 /**
- * Show the statistics for the external files plugin on stats.php. 
+ * Show the statistics for the external files plugin on stats.php.
  * If $showsitestats is 1 then we are to only print the overall stats .
  *
  * @param   integer showsitestats   Flag to let us know which stats to get
@@ -245,7 +236,7 @@ function plugin_getiteminfo_external($id, $what, $uid=0, $options=array())
                     // ignore SSL errors
                     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                     // Do not follow redirects
-                    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0); 
+                    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);
                     curl_setopt($ch, CURLOPT_ENCODING, 'gzip');
                     $result = curl_exec($ch);
                     curl_close($ch);
@@ -371,7 +362,7 @@ function plugin_dopluginsearch_external(
     // Build search SQL - Modified to exclude static PHP pages from search.
     $sql = "SELECT * from {$_TABLES['external']}";
     $result = DB_query($sql);
-   
+
     // OK, now create new plugin object and insert table header labels
     require_once($_CONF['path_system'] . 'classes/plugin.class.php');
     $plugin_results = new Plugin();
@@ -503,50 +494,8 @@ function plugin_autouninstall_external()
  */
 function plugin_upgrade_external()
 {
-    global $_TABLES, $_CONF_EXP;
-
-    $pi_name = $_CONF_EXP['pi_name'];
-
-    // Get the current version, compare to the version in the plugin code
-    $current_ver = DB_getItem($_TABLES['plugins'], 'pi_version',
-        "pi_name = '$pi_name'");
-    if (!$current_ver) {
-        COM_errorLog("Error getting the $pi_name Plugin version",1);
-        return '03';
-    }
-
-    // if we're at the current version, what are we doing here?
-    if ($current_ver >= $_CONF_EXP['pi_version']) {
-        COM_errorLog("Current version $current_ver is already up to date");
-        return '06';
-    }
-
-    // If we're still here, import the upgrade functions.
-    USES_external_upgrade();
-    $error = EXP_upgrade($current_ver);
-    if ($error) {
-        COM_errorLog("Error updating the $pi_name Plugin version",1);
-        return '04';
-    }
-
-    // now update the current version number.
-    DB_query("UPDATE
-        {$_TABLES['plugins']}
-    SET
-        pi_version = '{$_CONF_EXP['pi_version']}',
-        pi_gl_version = '{$_CONF_EXP['gl_version']}',
-        pi_homepage = '{$_CONF_EXP['pi_url']}'
-    WHERE
-        pi_name = '$pi_name';
-    ");
-
-    if (DB_error()) {
-        COM_errorLog("Error updating the $pi_name Plugin version",1);
-        return '05';
-    }
-
-    COM_errorLog("Succesfully updated the $pi_name Plugin!",1);
-    return true;
+    require_once __DIR__ . '/upgrade.inc.php';
+    return EXP_upgrade(false);
 }
 
 
@@ -560,7 +509,27 @@ function plugin_configmanager_select_defgrp_external()
     global $_TABLES;
 
     $A = array();
+    $query = "SELECT grp_id, grp_name FROM {$_TABLES['groups']}";
+    $result = DB_query($query);
+    if ($result && DB_numRows($result) > 0) {
+        while ($row = DB_fetchArray($result)) {
+            $A[$row['grp_name']] = $row['grp_id'];
+        }
+    }
+    return $A;
+}
 
+
+/**
+ * User selection for the default user assigned to new pages.
+ *
+ * @return  array   name => id array of users
+ */
+function plugin_configmanager_select_defuser_external()
+{
+    global $_TABLES;
+
+    $A = array();
     $query = "SELECT uid, username FROM {$_TABLES['users']}";
     $result = DB_query($query);
     if ($result && DB_numRows($result) > 0) {
