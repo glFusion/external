@@ -50,3 +50,5 @@ for looking up pages or creating new database entries. This should be unique.
 * You can use this with a pure html page, but it would have to be converted to a php page to handle
   the header. See the phphtml.php template. Alternatively you can configure your
 web server to render all HTML pages using PHP, which entails a performance hit.
+* If you enable the plugin to list external pages to users, you will definitely
+want to use a meangful page title for each page.
