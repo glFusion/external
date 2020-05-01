@@ -19,10 +19,6 @@ namespace External;
  */
 class Page
 {
-    /** Internal properties.
-     * @var array */
-    private $properties = array();
-
     /** External page record ID.
      * @var integer */
     private $exid = 0;
@@ -73,7 +69,9 @@ class Page
     {
         global $_CONF_EXP;
 
-        if ($exid > 0) {
+        if (is_array($exid)) {
+            $this->setVars($exid, true);
+        } elseif ($exid > 0) {
             $this->Read($exid);
         } else {
             $this->owner_id = $_CONF_EXP['defuser'];
@@ -153,6 +151,28 @@ class Page
     public function getID()
     {
         return (int)$this->exid;
+    }
+
+
+    /**
+     * Get the URL to the page.
+     *
+     * @return  string      Page URL
+     */
+    public function getUrl()
+    {
+        return $this->url;
+    }
+
+
+    /**
+     * Get the page title.
+     *
+     * @return  string  Page title
+     */
+    public function getTitle()
+    {
+        return $this->title;
     }
 
 
@@ -374,6 +394,28 @@ class Page
             ->setTitle($page)
             ->Save();
             $retval = true;
+        }
+        return $retval;
+    }
+
+
+    /**
+     * Get all pages.
+     *
+     * @return  array   Array of Page objects
+     */
+    public static function getAll()
+    {
+        global $_TABLES;
+
+        $retval = array();
+        $res = DB_query(
+            "SELECT * FROM {$_TABLES['external']} " .
+            COM_getPermSQL('WHERE',0,2) .
+            " ORDER BY title ASC"
+        );
+        while ($A = DB_fetchArray($res, false)) {
+            $retval[] = new self($A);
         }
         return $retval;
     }
