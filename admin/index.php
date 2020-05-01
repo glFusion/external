@@ -1,18 +1,18 @@
 <?php
 /**
-*   Administration entry point for the External Pages plugin
-*   @author     Lee Garner <lee@leegarner.com>
-*   @author     Tom Willett <tomw@pigstye.net>
-*   @copyright  Copyright (c) 2009-2018 Lee Garner <lee@leegarner.com>
-*   @package    external
-*   @version    1.0.2
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*
-*   Based on the External Pages Plugin 1.0 for Geeklog 1.3.6
-*   by Tom Willett.  Updated for glFusion 1.1.5 by Lee Garner
-*/
+ * Administration entry point for the External Pages plugin.
+ * Based on the External Pages Plugin 1.0 for Geeklog 1.3.6
+ * by Tom Willett. Updated for glFusion 1.1.5 by Lee Garner.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @author      Tom Willett <tomw@pigstye.net>
+ * @copyright   Copyright (c) 2009-2019 Lee Garner <lee@leegarner.com>
+ * @package     external
+ * @version     v1.0.2
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 /** Import core glFusion libraries */
 require_once('../../../lib-common.php');
@@ -76,9 +76,10 @@ echo $display;
 
 
 /**
-*   Build the admin list of pages
-*   @return string      HTML content
-*/
+ * Build the admin list of pages.
+ *
+ * @return  string      HTML content
+ */
 function EXP_adminList()
 {
     global $_CONF, $_TABLES, $LANG_ADMIN, $LANG_ACCESS, $_CONF_EXP, $LANG_EX00;
@@ -130,14 +131,14 @@ function EXP_adminList()
 
 
 /**
-*   Returns a formatted field to the admin list when managing general locations
-*   @param  string  $fieldname  Name of field
-*   @param  string  $fieldvalue Value of field
-*   @param  array   $A          Array of all values
-*   @param  array   $icon_arr   Array of icons
-*   @return string  String to display for the selected field
-*
-*/
+ * Returns a formatted field to the admin list when managing general locations.
+ *
+ * @param   string  $fieldname  Name of field
+ * @param   string  $fieldvalue Value of field
+ * @param   array   $A          Array of all values
+ * @param   array   $icon_arr   Array of icons
+ * @return  string  String to display for the selected field
+ */
 function EXP_getAdminListField($fieldname, $fieldvalue, $A, $icon_arr)
 {
     global $_CONF, $_CONF_EXP, $LANG24, $LANG_EX00;
@@ -158,7 +159,7 @@ function EXP_getAdminListField($fieldname, $fieldvalue, $A, $icon_arr)
         break;
     case 'delete':
         $retval = '&nbsp;&nbsp;' . COM_createLink(
-                '<i class="uk-icon uk-icon-trash"></i>',
+                '<i class="uk-icon uk-icon-trash ex-icon-danger"></i>',
                 EXP_ADMIN_URL . '/index.php?delete=x&exid=' . $A['exid'],
                 array(
                     'title' => 'Delete this item',

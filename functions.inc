@@ -1,28 +1,27 @@
 <?php
 /**
-*   Common functions for the External Pages plugin.
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @author     Tom Willett <tomw@pigstye.net>
-*   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2002 Tom Willett <tomw@pigstye.net>
-*   @package    external
-*   @version    1.0.2
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*
-*   Based on the External Pages Plugin 1.0 for Geeklog 1.3.6
-*   by Tom Willett.  Updated for glFusion 1.1.5 by Lee Garner.
-*/
+ * Common functions for the External Pages plugin.
+ * Based on the External Pages Plugin 1.0 for Geeklog 1.3.6
+ * by Tom Willett.  Updated for glFusion 1.1.5 by Lee Garner.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @author      Tom Willett <tomw@pigstye.net>
+ * @copyright   Copyright (c) 2009-2019 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2002 Tom Willett <tomw@pigstye.net>
+ * @package     external
+ * @version     v1.0.2
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 if (!defined('GVERSION')) {
     die('This file can not be used on its own.');
 }
 
 /** Global array of plugin configuration values
-*   @global array $_CONF_EXP
-*/
+ * @global array $_CONF_EXP
+ */
 global $_CONF_EXP;
 
 //  Check and see if we need to load the plugin configuration
@@ -35,12 +34,11 @@ if (!isset($_CONF_EXP['show'])) {
 }
 
 /** Import plugin static variables */
-require_once "{$_CONF['path']}plugins/external/external.php";
+require_once __DIR__ . '/external.php';
 define('EXP_PI_PATH', $_CONF['path'].'/plugins/'.$_CONF_EXP['pi_name']);
 define('EXP_URL', $_CONF['site_url'].'/'.$_CONF_EXP['pi_name']);
 define('EXP_ADMIN_URL',
         $_CONF['site_admin_url'] . '/plugins/' . $_CONF_EXP['pi_name']);
-$_CONF_EXP['_is_uikit'] = $_SYSTEM['framework'] == 'uikit' ? true : false;
 
 if (file_exists(EXP_PI_PATH . '/config.php')) {
     /** Include local configuration overrides */
@@ -72,6 +70,9 @@ spl_autoload_register(function ($class)
 });
 
 
+/**
+ * Import the upgrade functions.
+ */
 function USES_external_upgrade()
 {
     require_once EXP_PI_PATH .'/upgrade.inc.php';
@@ -79,10 +80,10 @@ function USES_external_upgrade()
 
 
 /**
-*   Get the currently installed version
-*
-*   @return string  Plugin version
-*/
+ * Get the currently installed version.
+ *
+ * @return  string  Plugin version
+ */
 function plugin_chkVersion_external()
 {
     global $_CONF_EXP;
@@ -91,11 +92,11 @@ function plugin_chkVersion_external()
 
 
 /**
-*   Show the statistics for the external files plugin on stats.php. 
-*   If $showsitestats is 1 then we are to only print the overall stats .
-*
-*   @param  integer showsitestats   Flag to let us know which stats to get
-*/
+ * Show the statistics for the external files plugin on stats.php. 
+ * If $showsitestats is 1 then we are to only print the overall stats .
+ *
+ * @param   integer showsitestats   Flag to let us know which stats to get
+ */
 function plugin_showstats_external($showsitestats)
 {
     global $LANG_EX00, $_CONF, $_TABLES;
@@ -142,10 +143,10 @@ function plugin_showstats_external($showsitestats)
 
 
 /**
-*   Add the external page plugin to the available search types
-*
-*   @return array   pi_name => title
-*/
+ * Add the external page plugin to the available search types.
+ *
+ * @return  array   pi_name => title
+ */
 function plugin_searchtypes_external()
 {
     global $LANG_EX00;
@@ -156,14 +157,14 @@ function plugin_searchtypes_external()
 
 
 /**
-*   Provides the getItemInfo function for daily quotes
-*
-*   @param  string  $id         Product ID
-*   @param  string  $fields     Comma-separated list of fields to return
-*   @param  integer $uid        User ID
-*   @param  array   $options    Not used
-*   @return array           Array of product information
-*/
+ * Provides the getItemInfo function for external pages.
+ *
+ * @param   string  $id         Product ID
+ * @param   string  $what       Comma-separated list of fields to return
+ * @param   integer $uid        User ID
+ * @param   array   $options    Not used
+ * @return  array           Array of product information
+ */
 function plugin_getiteminfo_external($id, $what, $uid=0, $options=array())
 {
     global $_TABLES, $_CONF, $LANG_EX00;
@@ -313,6 +314,12 @@ function plugin_getiteminfo_external($id, $what, $uid=0, $options=array())
 }
 
 
+/**
+ * Get the contents from an external URL.
+ *
+ * @param   string  $url    URL to retrieve
+ * @return  string      Contents from URL
+ */
 function EXT_getContents($url)
 {
     if (preg_match("/^(http:\/\/)/i",$url) == 1) {
@@ -327,17 +334,17 @@ function EXT_getContents($url)
 
 
 /**
-*   Searches for pages matching the user query and returns an array of
-*   for the header and table rows back to search.php where it will be
-*   formated and printed.
-*
-*   @param  string  query       Keywords user is looking for
-*   @param  string  datestart   Start date to get results for
-*   @param  string  dateend     End date to get results for
-*   @param  string  topic       The topic they were searching in
-*   @param  string  type        Type of items they are searching
-*   @param  string  author      Get all results by this author
-*/
+ * Searches for pages matching the user query and returns an array of
+ * for the header and table rows back to search.php where it will be
+ * formated and printed.
+ *
+ * @param   string  query       Keywords user is looking for
+ * @param   string  datestart   Start date to get results for
+ * @param   string  dateend     End date to get results for
+ * @param   string  topic       The topic they were searching in
+ * @param   string  type        Type of items they are searching
+ * @param   string  author      Get all results by this author
+ */
 function plugin_dopluginsearch_external(
     $query,
     $datestart,
@@ -415,18 +422,19 @@ function plugin_dopluginsearch_external(
 
 
 /**
-*   This will put an option for the plugin in command and control.
-*   Add the plugin name, icon and link to the command and control
-*   block in moderation.php.
-*
-*   @return   array   Array (plugin name, admin url, url of plugin icon)
-*/
+ * This will put an option for the plugin in command and control.
+ * Add the plugin name, icon and link to the command and control
+ * block in moderation.php.
+ *
+ * @return  array   Array (plugin name, admin url, url of plugin icon)
+ */
 function plugin_cclabel_external()
 {
     global $_CONF, $LANG_EX00;
 
     if (SEC_hasRights('external.admin')) {
-        return array($LANG_EX00['externpages'],
+        return array(
+            $LANG_EX00['externpages'],
             EXP_ADMIN_URL . '/index.php',
             plugin_geticon_external()
         );
@@ -435,10 +443,10 @@ function plugin_cclabel_external()
 
 
 /**
-*   Returns the URL of the plugin's icon
-*
-*   @return string      URL of the icon
-*/
+ * Returns the URL of the plugin's icon.
+ *
+ * @return  string      URL of the icon
+ */
 function plugin_geticon_external()
 {
     return EXP_URL . '/images/external.png';
@@ -446,28 +454,30 @@ function plugin_geticon_external()
 
 
 /**
-*   Returns the administrative option for this plugin
-*   Adds the plugin to the Admin menu
-*
-*   @return array   (plugin name, plugin admin url, # of items in plugin or '')
-*/
+ * Returns the administrative option for this plugin.
+ * Adds the plugin to the Admin menu.
+ *
+ * @return  array   (plugin name, plugin admin url, # of items in plugin or '')
+ */
 function plugin_getadminoption_external()
 {
     global $_TABLES, $LANG_EX00;
 
     if (SEC_hasRights('external.admin')) {
-        return array($LANG_EX00['externpages'],
-                EXP_ADMIN_URL . '/index.php',
-                DB_count($_TABLES['external']));
+        return array(
+            $LANG_EX00['externpages'],
+            EXP_ADMIN_URL . '/index.php',
+            DB_count($_TABLES['external'])
+        );
     }
 }
 
 
 /**
-*   Get an array of items to remove during plugin removal.
-*
-*   @return array
-*/
+ * Get an array of items to remove during plugin removal.
+ *
+ * @return  array   Array of elements to be removed
+ */
 function plugin_autouninstall_external()
 {
     $out = array (
@@ -487,10 +497,10 @@ function plugin_autouninstall_external()
 
 
 /**
-*   Upgrade the plugin
-*
-*   @return boolean     True on success, error code on failure
-*/
+ * Upgrade the plugin.
+ *
+ * @return  boolean     True on success, error code on failure
+ */
 function plugin_upgrade_external()
 {
     global $_TABLES, $_CONF_EXP;
@@ -541,22 +551,11 @@ function plugin_upgrade_external()
 
 
 /**
-*   Group selection for the default group assigned to new pages
-*
-*   @return array   name => id array of groups
-*/
+ * Group selection for the default group assigned to new pages.
+ *
+ * @return  array   name => id array of groups
+ */
 function plugin_configmanager_select_defgrp_external()
-{
-    return EXP_getGroups('\'All Users\'', 'NOT');
-}
-
-
-/**
-*   User selection for the default user assigned to new pages
-*
-*   @return array   name => id array of users
-*/
-function plugin_configmanager_select_defuser_external()
 {
     global $_TABLES;
 
@@ -580,12 +579,12 @@ function plugin_configmanager_select_defuser_external()
 ////////////////////////////////////////////////////////////
 
 /**
-*   Get an array of groups for option lists.
-*
-*   @param  string  $grplist    Comma-separated list of groups, SQL format
-*   @param  string  $NOT        "NOT" to exclude $grplist, blank to include it.
-*   @return array           name => grp_id array of groups
-*/
+ * Get an array of groups for option lists.
+ *
+ * @param   string  $grplist    Comma-separated list of groups, SQL format
+ * @param   string  $NOT        "NOT" to exclude $grplist, blank to include it.
+ * @return  array           name => grp_id array of groups
+ */
 function EXP_getGroups($grplist='', $NOT='')
 {
     global $_TABLES;
@@ -613,85 +612,17 @@ function EXP_getGroups($grplist='', $NOT='')
 
 
 /**
-*   Public API function.
-*   This is the public API function that's called directly by the external
-*   page. It checks access for the page, or adds a new record.
-*
-*   @param    string    $page   Page to check
-*   @return   boolean           True if has access, False otherwise
-*/
+ * Public API function.
+ * This is the public API function that's called directly by the external
+ * page. It checks access for the page, or adds a new record.
+ *
+ * @uses    External\Page::checkAccess()
+ * @param   string    $page   Page to check
+ * @return  boolean           True if has access, False otherwise
+ */
 function EXP_externalAccess($page)
 {
-    global $_TABLES, $_CONF, $_CONF_EXP, $_USER;
-
-    // Assume user has no access to this page
-    $retval = false;
-
-    $page = DB_escapeString($page);
-    $sql = "SELECT * FROM {$_TABLES['external']} WHERE title='$page'";
-    $recs = DB_query($sql,1);
-    if (DB_numRows($recs) > 0) {
-        // Have to check access from the returned record rather than as part
-        // of the query. If a user doesn't have access, the query would return
-        // an empty set which would act like a new page being added with default
-        // access.
-        $A = DB_fetchArray($recs);
-        $access = SEC_hasAccess($A['owner_id'], $A['group_id'],
-                $A['perm_owner'], $A['perm_group'],
-                $A['perm_members'], $A['perm_anon']);
-        if ($access == 0)
-            // No access, return false without updating hit counter
-            return false;
-        else
-            $retval = true;
-        $sql = "UPDATE {$_TABLES['external']} SET
-                hits = hits+1
-                WHERE exid={$A['exid']}";
-        DB_query($sql,1);
-    } else {
-        $url = $_SERVER['REQUEST_SCHEME'] . '://' .
-            $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME'];
-        $sql = "INSERT INTO {$_TABLES['external']}
-                SET
-                    title='$page',
-                    url='" . DB_escapeString($url) . "',
-                    hits=1,
-                    owner_id=".(int)$_CONF_EXP['defuser'].",
-                    group_id=".(int)$_CONF_EXP['defgrp'].",
-                    perm_owner=".(int)$_CONF_EXP['default_permissions'][0].",
-                    perm_group=".(int)$_CONF_EXP['default_permissions'][1].",
-                    perm_members=".(int)$_CONF_EXP['default_permissions'][2]. ",
-                    perm_anon=".(int)$_CONF_EXP['default_permissions'][3];
-        DB_query($sql);
-        $retval = true;
-    }
-    return $retval;
-}
-
-/**
-*   Helper function to get a template object.
-*
-*   @param  string  $name   Base name of template, e.g. "editor"
-*   @param  string  $id     ID of template, e.g. "editform"
-*   @param  string  $path   Optional path if not "templates/"
-*   @return string      Full filename, e.g. "editor.uikit.thtml"
-*/
-function EXP_getTemplate($name, $id, $path='')
-{
-    global $_CONF_EXP;
-
-    // May use "switch" later, for now there are only two options
-    $tpltype = $_CONF_EXP['_is_uikit'] ? '.uikit' : '';
-    $filename = "$name$tpltype.thtml";
-    if (substr($path, 0, 9) != 'templates') {
-        $path = 'templates/' . $path;
-    }
-    if (!file_exists(__DIR__ . "/$path/$filename")) {
-        $filename = "$name.thtml";
-    }
-    $T = new Template(__DIR__ . '/' . $path);
-    $T->set_file($id, $filename);
-    return $T;
+    return External\Page::checkAccess($page);
 }
 
 ?>
