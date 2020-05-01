@@ -1,14 +1,15 @@
 <?php
 /**
-*   Automatically install the External Pages plugin
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2018 Lee Garner <lee@leegarner.com>
-*   @package    external
-*   @version    1.0.2
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Automatically install the External Pages plugin.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2018 Lee Garner <lee@leegarner.com>
+ * @package     external
+ * @version     v1.0.2
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 if (!defined ('GVERSION')) {
     die ('This file can not be used on its own.');
@@ -21,42 +22,48 @@ require_once __DIR__ . '/functions.inc';
 require_once __DIR__ . '/sql/'. $_DB_dbms. '_install.php';
 
 
-/** Plugin installation options
-*   @global array $INSTALL_plugin['external']
-*/
+/** Plugin installation options.
+ * @global array $INSTALL_plugin['external']
+ */
 $INSTALL_plugin['external'] = array(
-    'installer' => array('type' => 'installer', 
-            'version' => '1', 
-            'mode' => 'install'),
-
-    'plugin' => array('type' => 'plugin', 
-            'name' => $_CONF_EXP['pi_name'],
-            'ver' => $_CONF_EXP['pi_version'], 
-            'gl_ver' => $_CONF_EXP['gl_version'],
-            'url' => $_CONF_EXP['pi_url'], 
-            'display' => $_CONF_EXP['pi_display_name']),
-
-    array('type' => 'table', 
-            'table' => $_TABLES['external'], 
-            'sql' => $NEWTABLE['external']),
-
-    array('type' => 'group', 
-            'group' => 'external Admin', 
-            'desc' => 'Users in this group can administer the External Pages plugin',
-            'variable' => 'admin_group_id', 
-            'admin' => true,
-            'addroot' => true),
-
-    array('type' => 'feature', 
-            'feature' => 'external.admin', 
-            'desc' => 'External Admin',
-            'variable' => 'admin_feature_id'),
-
-    array('type' => 'mapping', 
-            'group' => 'admin_group_id', 
-            'feature' => 'admin_feature_id',
-            'log' => 'Adding feature to the admin group'),
-
+    'installer' => array(
+        'type' => 'installer',
+        'version' => '1',
+        'mode' => 'install',
+    ),
+    'plugin' => array(
+        'type' => 'plugin',
+        'name' => $_CONF_EXP['pi_name'],
+        'ver' => $_CONF_EXP['pi_version'],
+        'gl_ver' => $_CONF_EXP['gl_version'],
+        'url' => $_CONF_EXP['pi_url'],
+        'display' => $_CONF_EXP['pi_display_name'],
+    ),
+    array(
+        'type' => 'table',
+        'table' => $_TABLES['external'],
+        'sql' => $NEWTABLE['external'],
+    ),
+    array(
+        'type' => 'group',
+        'group' => 'external Admin',
+        'desc' => 'Users in this group can administer the External Pages plugin',
+        'variable' => 'admin_group_id',
+        'admin' => true,
+        'addroot' => true,
+    ),
+    array(
+        'type' => 'feature',
+        'feature' => 'external.admin',
+        'desc' => 'External Admin',
+        'variable' => 'admin_feature_id',
+    ),
+    array(
+        'type' => 'mapping',
+        'group' => 'admin_group_id',
+        'feature' => 'admin_feature_id',
+        'log' => 'Adding feature to the admin group',
+    ),
 );
 
 
@@ -93,12 +100,14 @@ function plugin_load_configuration_external()
 
     COM_errorLog("Loading the configuration for the External plugin",1);
 
-    require_once $_CONF['path'].'plugins/'.$_CONF_EXP['pi_name'].'/install_defaults.php';
+    require_once __DIR__ . '/install_defaults.php';
 
     // Get the admin group ID that was saved previously.
-    $group_id = (int)DB_getItem($_TABLES['groups'], 'grp_id',
-            "grp_name='{$_CONF_EXP['pi_name']} Admin'");
-
+    $group_id = (int)DB_getItem(
+        $_TABLES['groups'],
+        'grp_id',
+        "grp_name='{$_CONF_EXP['pi_name']} Admin'"
+    );
     return plugin_initconfig_external($group_id);
 }
 

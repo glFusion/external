@@ -1,19 +1,20 @@
 <?php
 /**
-*   This is the Polish language page for the External Pages Plug-in.
-*   @author     Lee Garner <lee@leegarner.com>
-*   @author     Tom Willett <tomw@pigstye.net>
-*   @copyright  Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2002 Tom Willett <tomw@pigstye.net>
-*   @package    external
-*   @version    1.0.2
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
-*               GNU Public License v2 or later
-*   @filesource
-*
-*   Based on the External Pages Plugin 1.0 for Geeklog 1.3.6
-*   by Tom Willett.  Updated for glFusion 1.1.5 by Lee Garner
-*/
+ * This is the Polish language page for the External Pages Plug-in.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @author      Tom Willett <tomw@pigstye.net>
+ * @copyright   Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2002 Tom Willett <tomw@pigstye.net>
+ * @package     external
+ * @version     v1.0.2
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ *
+ * Based on the External Pages Plugin 1.0 for Geeklog 1.3.6
+ * by Tom Willett.  Updated for glFusion 1.1.5 by Lee Garner
+ */
 
 $LANG_EX00 = array (
     'results'           => 'Wyniki',
@@ -48,13 +49,13 @@ $LANG_EX00 = array (
 	'install'           => 'Instaluj',
 	'uninstall'         => 'Odinstaluj',
     'warning'           => 'Uwaga! Plugin jest W³±czony',
-    'enabled'           => 'Wy³±cz plugin przed odinstalowaniem.'
-    'notavail'          => 'Niedostepne'
+    'enabled'           => 'Wy³±cz plugin przed odinstalowaniem.',
+    'notavail'          => 'Niedostepne',
 );
 
 // Localization of the Admin Configuration UI
 $LANG_configsubgroups['external'] = array(
-    'sg_main' => 'Ustawienia g¿ówne'
+    'sg_main' => 'Ustawienia g¿ówne',
 );
 
 $LANG_fs['external'] = array(

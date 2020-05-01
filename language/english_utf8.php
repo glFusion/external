@@ -1,19 +1,20 @@
 <?php
 /**
-*   This is the English language page for the External Pages Plug-in.
-*   @author     Lee Garner <lee@leegarner.com>
-*   @author     Tom Willett <tomw@pigstye.net>
-*   @copyright  Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2002 Tom Willett <tomw@pigstye.net>
-*   @package    external
-*   @version    1.0.2
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
-*               GNU Public License v2 or later
-*   @filesource
-*
-*   Based on the External Pages Plugin 1.0 for Geeklog 1.3.6
-*   by Tom Willett.  Updated for glFusion 1.1.5 by Lee Garner
-*/
+ * This is the English language page for the External Pages Plug-in.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @author      Tom Willett <tomw@pigstye.net>
+ * @copyright   Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2002 Tom Willett <tomw@pigstye.net>
+ * @package     external
+ * @version     v1.0.2
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ *
+ * Based on the External Pages Plugin 1.0 for Geeklog 1.3.6
+ * by Tom Willett.  Updated for glFusion 1.1.5 by Lee Garner
+ */
 
 $LANG_EX00 = array (
     'header'            => 'External Pages',
@@ -50,12 +51,12 @@ $LANG_EX00 = array (
 	'uninstall'         => 'UnInstall',
     'warning'           => 'Warning! Plugin is still Enabled',
     'enabled'           => 'Disable plugin before uninstalling.',
-    'notavail'          => 'Not available'
+    'notavail'          => 'Not available',
 );
 
 // Localization of the Admin Configuration UI
 $LANG_configsubgroups['external'] = array(
-    'sg_main' => 'Main Settings'
+    'sg_main' => 'Main Settings',
 );
 
 $LANG_fs['external'] = array(
@@ -78,7 +79,7 @@ $LANG_confignames['external'] = array(
 // Note: entries 0, 1, and 12 are the same as in $LANG_configselects['Core']
 $LANG_configselects['external'] = array(
     0 => array('True' => 1, 'False' => 0),
-    12 => array('No access' => 0, 'Read-Only' => 2, 'Read-Write' => 3)
+    12 => array('No access' => 0, 'Read-Only' => 2, 'Read-Write' => 3),
 );
-  
+
 ?>

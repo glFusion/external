@@ -1,7 +1,7 @@
 <?php
 /**
 *   Non-integrated PHP template for the External Pages Plugin.
-*   This template creates a PHP page which will register itself with 
+*   This template creates a PHP page which will register itself with
 *   the Exteral Pages plugin, and increment the hit count, but will *not*
 *   include any glFusion display elements.
 *
@@ -11,7 +11,7 @@
 *   @copyright  Copyright (c) 2002 Tom Willett <tomw@pigstye.net>
 *   @package    external
 *   @version    0.1
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
+*   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
 *

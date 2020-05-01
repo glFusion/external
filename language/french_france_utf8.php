@@ -7,7 +7,7 @@
 *   @copyright  Copyright (c) 2002 Tom Willett <tomw@pigstye.net>
 *   @package    external
 *   @version    1.0.2
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
+*   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
 *
@@ -49,7 +49,7 @@ $LANG_EX00 = array (
     'uninstall'         => 'Désinstaller',
     'warning'           => 'Attention! Le Plugin est encore Activé',
     'enabled'           => 'Désactivez le plugin avant de déinstaller.',
-    'notavail'          => 'Non disponible'    
+    'notavail'          => 'Non disponible',
 );
 
 // Localization of the Admin Configuration UI

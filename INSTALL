@@ -21,12 +21,12 @@ Step 5:  If necessary, create or edit the config.php file in the external direct
 Step 6:  Log in to your glFusion as a root user and run install.php in your admin/plugins/external/ directory.
 The installation page will tell you if the installation was successful or not.  If not examine glFusion system errorlog for possible problems.
 
-The External Pages plugin should now be installed and functioning.  Clicking on the External Pages Icon will take you to the admin page.  
+The External Pages plugin should now be installed and functioning.  Clicking on the External Pages Icon will take you to the admin page.
 
-Step 7: Set up security.  On install only the root users have access to External Pages administration.  
+Step 7: Set up security.  On install only the root users have access to External Pages administration.
 You can delegate control for this functions through the user and group editors.
 
-Step 8: Add the code at the top of your external pages so that they can participate in glFusion Security.  
+Step 8: Add the code at the top of your external pages so that they can participate in glFusion Security.
 This code also handles the tracking of hits.
 
 
