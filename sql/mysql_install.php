@@ -16,7 +16,7 @@
  * Global array of new tables to be created
  * @global array $NEWTABLE
  */
-global $NEWTABLE;
+global $_TABLES, $NEWTABLE;
 $NEWTABLE = array();
 $NEWTABLE['external'] = "CREATE TABLE {$_TABLES['external']} (
     exid int(8) NOT NULL auto_increment,
