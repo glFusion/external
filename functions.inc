@@ -107,7 +107,7 @@ function plugin_showstats_external($showsitestats)
                 ORDER BY hits DESC
                 LIMIT 10");
         $nrows  = DB_numRows($result);
-        $retval .= COM_startBlock($LANG_EX00['topten'] . $LANG_EX00['externpages']);
+        $retval = COM_startBlock($LANG_EX00['topten'] . $LANG_EX00['externpages']);
         if ($nrows > 0) {
             $stat_templates->set_var('item_label',$LANG_EX00['titlemsg']);
             $stat_templates->set_var('stat_name', $LANG_EX00['hitsmsg']);
