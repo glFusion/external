@@ -3,7 +3,7 @@
  * Class to handle External Page objects.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2017-2019 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017-2022 Lee Garner <lee@leegarner.com>
  * @package     external
  * @version     v1.0.2
  * @license     http://opensource.org/licenses/gpl-2.0.php
@@ -89,7 +89,7 @@ class Page
      *
      * @param   integer $exid   Page ID
      */
-    public function Read($exid)
+    public function Read(int $exid) : void
     {
         global $_TABLES;
 
@@ -112,7 +112,7 @@ class Page
      * @param   array   $A          Array of field values
      * @param   boolean $from_db    True of reading from the DB, False if a form
      */
-    public function setVars($A, $from_db=true)
+    public function setVars(array $A, ?bool $from_db=true) : self
     {
         foreach ($A as $key=>$value) {
             $this->$key = $value;
@@ -140,6 +140,7 @@ class Page
             $this->perm_members = (int)$P[2];
             $this->perm_anon = (int)$P[3];
         }
+        return $this;
     }
 
 
@@ -148,7 +149,7 @@ class Page
      *
      * @return  integer     Record ID
      */
-    public function getID()
+    public function getID() : int
     {
         return (int)$this->exid;
     }
@@ -159,7 +160,7 @@ class Page
      *
      * @return  string      Page URL
      */
-    public function getUrl()
+    public function getUrl() : string
     {
         return $this->url;
     }
@@ -170,7 +171,7 @@ class Page
      *
      * @return  string  Page title
      */
-    public function getTitle()
+    public function getTitle() : string
     {
         return $this->title;
     }
@@ -179,10 +180,10 @@ class Page
     /**
      * Set the page hits.
      *
-     * @param   string  $hits   Page hit count
+     * @param   integer $hits   Page hit count
      * @return  object  $this
      */
-    public function setHits($hits)
+    public function setHits(int $hits) : self
     {
         $this->hits = (int)$hits;
         return $this;
@@ -195,7 +196,7 @@ class Page
      * @param   string  $url    Page URL
      * @return  object  $this
      */
-    public function setUrl($url)
+    public function setUrl(string $url) : self
     {
         $this->url = $url;
         return $this;
@@ -208,7 +209,7 @@ class Page
      * @param   string  $title  Page title
      * @return  object  $this
      */
-    public function setTitle($title)
+    public function setTitle(string $title) : self
     {
         $this->title = $title;
         return $this;
@@ -220,7 +221,7 @@ class Page
      *
      * @return  string  HTML for the edit form
      */
-    public function Edit()
+    public function Edit() : string
     {
         global $LANG_EX00, $_CONF_EXP, $LANG_ACCESS, $_TABLES;
 
@@ -262,7 +263,7 @@ class Page
      * @param   array   $A  Optional array of field values
      * @return  boolean     True on success, False on error
      */
-    public function Save($A=array())
+    public function Save(?array $A=NULL) : bool
     {
         global $_TABLES;
 
@@ -295,8 +296,10 @@ class Page
 
     /**
      * Get the access.
+     *
+     * @return  boolean     True if the user has access, False if not
      */
-    public function getAccess()
+    public function getAccess() : bool
     {
         $retval = SEC_hasAccess(
             $this->owner_id,
@@ -315,7 +318,7 @@ class Page
      *
      * @param   integer $exid   Record ID of page
      */
-    public static function Delete($exid)
+    public static function Delete($exid) : void
     {
         global $_TABLES;
         DB_delete($_TABLES['external'], 'exid', (int)$exid);
@@ -328,7 +331,7 @@ class Page
      * @param   string  $title  Page title
      * @return  object      Page object
      */
-    public static function getByTitle($title)
+    public static function getByTitle(string $title) : self
     {
         global $_TABLES;
 
@@ -347,13 +350,13 @@ class Page
     /**
      * Update the hit counter.
      */
-    public function updateHits()
+    public function updateHits() : void
     {
         global $_TABLES;
 
         $sql = "UPDATE {$_TABLES['external']} SET
             hits = hits+1
-            WHERE exid={$A['exid']}";
+            WHERE exid={$this->exid}";
         DB_query($sql,1);
     }
 
@@ -366,7 +369,7 @@ class Page
      * @param   string    $page   Page to check
      * @return  boolean           True if has access, False otherwise
      */
-    public static function checkAccess($page)
+    public static function checkAccess(string $page) : bool
     {
         global $_TABLES, $_CONF, $_CONF_EXP, $_USER;
 
@@ -404,7 +407,7 @@ class Page
      *
      * @return  array   Array of Page objects
      */
-    public static function getAll()
+    public static function getAll() : array
     {
         global $_TABLES;
 
@@ -422,4 +425,3 @@ class Page
 
 }
 
-?>
