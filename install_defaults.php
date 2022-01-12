@@ -83,7 +83,7 @@ $extConfigData = array(
     ),
     array(
         'name' => 'defgrp',
-        'default_value' => 13
+        'default_value' => 13,
         'type' => 'select',
         'subgroup' => 0,
         'fieldset' => 10,
