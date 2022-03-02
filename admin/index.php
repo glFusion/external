@@ -2,13 +2,13 @@
 /**
  * Administration entry point for the External Pages plugin.
  * Based on the External Pages Plugin 1.0 for Geeklog 1.3.6
- * by Tom Willett. Updated for glFusion 1.1.5 by Lee Garner.
+ * by Tom Willett. Updated for glFusion 1.1.5+ by Lee Garner.
  *
  * @author      Lee Garner <lee@leegarner.com>
  * @author      Tom Willett <tomw@pigstye.net>
- * @copyright   Copyright (c) 2009-2019 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2022 Lee Garner <lee@leegarner.com>
  * @package     external
- * @version     v1.0.2
+ * @version     v1.0.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
@@ -88,20 +88,52 @@ function EXP_adminList()
 
     $retval = '';
 
-    $header_arr = array(      # display 'text' and use table field 'field'
-        array('text' => $LANG_ADMIN['edit'], 'field' => 'edit', 'sort' => false),
-        array('text' => $LANG_EX00['pageno'], 'field' => 'exid', 'sort' => true),
-        array('text' => $LANG_EX00['titlemsg'], 'field' => 'title', 'sort' => true),
-        array('text' => 'URL', 'field' => 'url', 'sort' => true),
-        array('text' => $LANG_EX00['hitsmsg'], 'field' => 'hits', 'sort' => true),
-        array('text' => $LANG_EX00['delete'], 'field' => 'delete', 'sort' => false),
+    $header_arr = array(
+        array(
+            'text' => $LANG_ADMIN['edit'],
+            'field' => 'edit',
+            'sort' => false,
+            'align' => 'center',
+        ),
+        array(
+            'text' => $LANG_EX00['pageno'],
+            'field' => 'exid',
+            'sort' => true,
+            'align' => 'right',
+        ),
+        array(
+            'text' => $LANG_EX00['titlemsg'],
+            'field' => 'title',
+            'sort' => true,
+        ),
+        array(
+            'text' => 'URL',
+            'field' => 'url',
+            'sort' => true,
+        ),
+        array(
+            'text' => $LANG_EX00['hitsmsg'],
+            'field' => 'hits',
+            'sort' => true,
+            'align' => 'right',
+        ),
+        array(
+            'text' => $LANG_EX00['delete'],
+            'field' => 'delete',
+            'sort' => false,
+            'align' => 'center',
+        ),
     );
 
     $menu_arr = array (
-        array('url' => EXP_ADMIN_URL . '/index.php?edit=x&exid=0',
-            'text' => $LANG_EX00['addnew']),
-        array('url' => $_CONF['site_admin_url'],
-              'text' => $LANG_ADMIN['admin_home']),
+        array(
+            'url' => EXP_ADMIN_URL . '/index.php?edit=x&exid=0',
+            'text' => $LANG_EX00['addnew'],
+        ),
+        array(
+            'url' => $_CONF['site_admin_url'],
+            'text' => $LANG_ADMIN['admin_home'],
+        ),
     );
 
     $defsort_arr = array('field' => 'exid', 'direction' => 'asc');
@@ -115,10 +147,10 @@ function EXP_adminList()
         'has_extras' => true,
         'form_url' => EXP_ADMIN_URL . '/index.php',
     );
-    $query_arr = array('table' => 'external',
+    $query_arr = array(
+        'table' => 'external',
         'sql' => "SELECT * FROM {$_TABLES['external']} ",
         'query_fields' => array('title', 'url'),
-        //'default_filter' => 'WHERE 1=1'
         'default_filter' => COM_getPermSql()
     );
     $form_arr = array();
@@ -141,49 +173,36 @@ function EXP_adminList()
  */
 function EXP_getAdminListField($fieldname, $fieldvalue, $A, $icon_arr)
 {
-    global $_CONF, $_CONF_EXP, $LANG24, $LANG_EX00;
-
     $retval = '';
 
     switch($fieldname) {
     case 'edit':
-        $retval = COM_createLink(
-                '<i class="uk-icon uk-icon-edit"></i>',
-                EXP_ADMIN_URL . "/index.php?edit=x&exid={$A['exid']}",
-                array(
-                    'title' => 'Edit this item',
-                    'class' => 'gl_mootip',
-                    'data-uk-tooltip' => '',
-                )
-            );
+        $retval = glFusion\FieldList::edit(array(
+            'url' => EXP_ADMIN_URL . "/index.php?edit=x&exid={$A['exid']}",
+        ) );
         break;
-    case 'delete':
-        $retval = '&nbsp;&nbsp;' . COM_createLink(
-                '<i class="uk-icon uk-icon-trash ex-icon-danger"></i>',
-                EXP_ADMIN_URL . '/index.php?delete=x&exid=' . $A['exid'],
-                array(
-                    'title' => 'Delete this item',
-                    'class' => 'gl_mootip',
-                    'data-uk-tooltip' => '',
-                    'onclick' => "return confirm('Do you really want to delete this item?');",
-                )
-            );
-            break;
 
-    case 'exid':
-    case 'title':
+    case 'delete':
+        $retval = glFusion\FieldList::delete(array(
+            'delete_url' => EXP_ADMIN_URL . '/index.php?delete=x&exid=' . $A['exid'],
+             array(
+                'onclick' => "return confirm('Do you really want to delete this item?');",
+            )
+        ) );
+        break;
+
     case 'hits':
-        $retval = htmlspecialchars($fieldvalue);
+        $retval = (int)$fieldvalue;
         break;
 
     case 'url':
         $retval = COM_createLink($fieldvalue, $fieldvalue);
         break;
 
+    default:
+        $retval = htmlspecialchars($fieldvalue);
+        break;
     }
-
     return $retval;
 }
 
-
-?>

@@ -3,9 +3,9 @@
  * Automatically install the External Pages plugin.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2009-2018 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2022 Lee Garner <lee@leegarner.com>
  * @package     external
- * @version     v1.0.2
+ * @version     v1.0.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
@@ -14,6 +14,7 @@
 if (!defined ('GVERSION')) {
     die ('This file can not be used on its own.');
 }
+use glFusion\Log\Log;
 
 global $_DB_dbms;
 /** Import core glFusion libraries */
@@ -80,7 +81,7 @@ function plugin_install_external()
     $pi_display_name    = $_CONF_EXP['pi_display_name'];
     $pi_version         = $_CONF_EXP['pi_version'];
 
-    COM_errorLog("Attempting to install the $pi_display_name plugin", 1);
+    Log::write('system', Log::INFO, "Attempting to install the $pi_display_name plugin");
 
     $ret = INSTALLER_install($INSTALL_plugin[$pi_name]);
     if ($ret > 0) {
@@ -98,7 +99,7 @@ function plugin_load_configuration_external()
 {
     global $_CONF, $_CONF_EXP, $_TABLES;
 
-    COM_errorLog("Loading the configuration for the External plugin",1);
+    Log::write('system', Log::INFO, "Loading the configuration for the External plugin");
 
     require_once __DIR__ . '/install_defaults.php';
 
@@ -111,4 +112,3 @@ function plugin_load_configuration_external()
     return plugin_initconfig_external($group_id);
 }
 
-?>

@@ -1,9 +1,14 @@
 # External Pages - Change Log
 
 ## v1.0.0
-  * Implement Page class and class autoloader
-  * Supports glFusion 1.7.0 or higher
-  * Add default user configuration item
+Release TBD
+  * Support glFusion 2.0+ only.
+    * Replace legacy database functions with Doctrine DBAL.
+    * Implement glFusion 2.0 Log class
+    * Standardize admin list icons.
+  * Implement Page class and class autoloader.
+  * Add default user configuration item.
+  * Remove non-UTF-8 language files.
 
 ## v0.1.1
   * Initial public release. Ported from version 1.0 for Geeklog 1.3.6.

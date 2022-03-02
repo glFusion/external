@@ -3,15 +3,17 @@
  * Upgrade the External Pages plugin
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2009-2020 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2022 Lee Garner <lee@leegarner.com>
  * @package     external
- * @version     v1.0.2
+ * @version     v1.0.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
  */
 
 global $_CONF, $_CONF_EXP, $_DB_dbms;
+use glFusion\Database\Database;
+use glFusion\Log\Log;
 
 
 /**
@@ -53,18 +55,22 @@ function EXP_do_update_version($version)
     global $_TABLES, $_CONF_EXP;
 
     // now update the current version number.
-    DB_query("UPDATE {$_TABLES['plugins']} SET
-            pi_version = '{$version}',
-            pi_gl_version = '{$_CONF_EXP['gl_version']}',
-            pi_homepage = '{$_CONF_EXP['pi_url']}'
-        WHERE pi_name = 'external'");
-
-    if (DB_error()) {
-        COM_errorLog("Error updating the external Plugin version to $version",1);
-        return false;
-    } else {
-        COM_errorLog("Succesfully updated the external Plugin version to $version!",1);
+    $db = Database::getInstance();
+    try {
+        $stmt = $db->conn->executeQuery(
+            "UPDATE {$_TABLES['plugins']} SET
+                pi_version = ?,
+                pi_gl_version = ?,
+                pi_homepage = ?
+            WHERE pi_name = 'external'",
+            array($version, $_CONF_EXP['gl_version'], $_CONF_EXP['pi_url']),
+            array(Database::STRING, Database::STRING, Database::STRING)
+        );
+        Log::write('system', Log::INFO, "Succesfully updated the external Plugin version to $version!");
         return true;
+    } catch (Throwable $e) {
+        Log::write('system', Log::ERROR, "Error updating the external Plugin version to $version");
+        return false;
     }
 }
 
@@ -85,20 +91,21 @@ function EXP_upgrade_sql($version='Undefined', $dvlp=false)
 
     // We control this, so it shouldn't happen, but just to be safe...
     if ($version == 'Undefined') {
-        COM_errorLog("Error updating {$_CONF_EXP['pi_name']} - Undefined Version");
+        Log::write(system, Log::ERROR, "Error updating {$_CONF_EXP['pi_name']} - Undefined Version");
         return false;
     }
 
     // Execute SQL now to perform the upgrade
     if (isset($UPG_SQL[$version])) {
-        COM_errorLOG("--Updating External Pages to version $version");
-        foreach ($UPG_SQL[$version] as $sql) {
-            COM_errorLOG("External Pages Plugin $version update: Executing SQL => " . current($sql));
-            DB_query($sql, '1');
-            if (DB_error()) {
-                COM_errorLog("SQL Error during External Pages plugin update",1);
+        Log::write(system, Log::INFO, "--Updating External Pages to version $version");
+        $db = Database::getInstance();
+       foreach ($UPG_SQL[$version] as $sql) {
+            try {
+                $db->conn->executeQuery($sql);
+            } catch (Throwable $e) {
+                Log::write('system', Log::ERROR, "External Plugin SQL Error: $sql");
                 if (!$dvlp) {
-                return false;
+                    return false;
                 }
             }
         }
@@ -106,4 +113,3 @@ function EXP_upgrade_sql($version='Undefined', $dvlp=false)
     return true;
 }
 
-?>

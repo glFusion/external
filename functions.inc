@@ -6,10 +6,10 @@
  *
  * @author      Lee Garner <lee@leegarner.com>
  * @author      Tom Willett <tomw@pigstye.net>
- * @copyright   Copyright (c) 2009-2019 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2022 Lee Garner <lee@leegarner.com>
  * @copyright   Copyright (c) 2002 Tom Willett <tomw@pigstye.net>
  * @package     external
- * @version     v1.0.2
+ * @version     v1.0.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
@@ -33,6 +33,18 @@ if (!isset($_CONF_EXP['show'])) {
     $_CONF_EXP = $external_config->get_config('external');
 }
 
+spl_autoload_register(function ($class)
+{
+    if (strpos($class, 'External\\') === 0) {
+        $class = str_replace('External\\', '', $class);
+        $path = __DIR__ . '/classes/' . $class . '.class.php';
+        if (file_exists($path)) {
+            include $path;
+        }
+    }
+});
+use glFusion\Database\Database;
+
 /** Import plugin static variables */
 require_once __DIR__ . '/external.php';
 define('EXP_PI_PATH', $_CONF['path'].'/plugins/'.$_CONF_EXP['pi_name']);
@@ -49,25 +61,15 @@ if (file_exists(EXP_PI_PATH . '/config.php')) {
 $langpath = EXP_PI_PATH . '/language';
 $langfile = "{$_CONF['language']}.php";
 if (!file_exists("$langpath/$langfile")) {
-    $langfile = 'english.php';
+    $langfile = 'english_utf-8.php';
 }
 /** Include the proper language file */
 include_once "$langpath/$langfile";
+
 if (file_exists("$langpath/custom/$langfile")) {
     /** Include the custom language file, if any */
     include_once "$langpath/custom/$langfile";
 }
-
-spl_autoload_register(function ($class)
-{
-    if (strpos($class, 'External\\') === 0) {
-        $class = str_replace('External\\', '', $class);
-        $path = __DIR__ . '/classes/' . $class . '.class.php';
-        if (file_exists($path)) {
-            include $path;
-        }
-    }
-});
 
 
 /**
@@ -92,8 +94,8 @@ function plugin_showstats_external($showsitestats)
 {
     global $LANG_EX00, $_CONF, $_TABLES;
 
-    $stat_templates = new Template($_CONF['path_layout'] . 'stats');
-    $stat_templates->set_file(array('itemstats'=>'itemstatistics.thtml',
+    $T = new Template($_CONF['path_layout'] . 'stats');
+    $T->set_file(array('itemstats'=>'itemstatistics.thtml',
                             'statrow'=>'singlestat.thtml'));
     if ($showsitestats == 1) {
         $total_pages=DB_count($_TABLES['external']);
@@ -101,29 +103,39 @@ function plugin_showstats_external($showsitestats)
         $retval .= "<tr><td>{$LANG_EX00['externpages']}</td>";
         $retval .= "<td align='right'>" . $total_pages . "&nbsp;&nbsp </td></tr></table>";
     } else {
-        $result = DB_query("SELECT url, title, hits
-                FROM {$_TABLES['external']}
-                WHERE hits > 0
-                ORDER BY hits DESC
-                LIMIT 10");
-        $nrows  = DB_numRows($result);
+        $db = Database::getInstance();
+        try {
+            $qb = Database::getInstance()->conn->createQueryBuilder();
+            $qb->select('url', 'title', 'hits')
+               ->from($_TABLES['external'])
+               ->where('hits > 0')
+               ->andWhere(COM_getPermSQL(''))
+               ->orderBy('hits', 'ASC')
+               ->setFirstResult(0)
+               ->setMaxResults(10);
+            $stmt = $qb->execute();
+            $data = $stmt->fetchAll(Database::ASSOCIATIVE);
+        } catch(\Throwable $e) {
+            $data = array();
+        }
+
+        $nrows  = count($data);
         $retval = COM_startBlock($LANG_EX00['topten'] . $LANG_EX00['externpages']);
         if ($nrows > 0) {
-            $stat_templates->set_var('item_label',$LANG_EX00['titlemsg']);
-            $stat_templates->set_var('stat_name', $LANG_EX00['hitsmsg']);
-            for ($i = 0; $i < $nrows; $i++) {
-                $A = DB_fetchArray($result);
-                if (preg_match("/^(http:\/\/)/i",$A['url']) == 1) {
-                    $stat_templates->set_var('item_url', $A['url']);
+            $T->set_var('item_label',$LANG_EX00['titlemsg']);
+            $T->set_var('stat_name', $LANG_EX00['hitsmsg']);
+            foreach ($data as $A) {
+                if (preg_match("/^(http:\/\/)/i", $A['url']) == 1) {
+                    $T->set_var('item_url', $A['url']);
                 } else {
-                    $stat_templates->set_var('item_url', $_CONF['site_url'] . '/' . $A['url']);
+                    $T->set_var('item_url', $_CONF['site_url'] . '/' . $A['url']);
                 }
-                $stat_templates->set_var('item_text', stripslashes($A['title']));
-                $stat_templates->set_var('item_stat', $A['hits']);
-                $stat_templates->parse('stat_row','statrow',true);
+                $T->set_var('item_text', stripslashes($A['title']));
+                $T->set_var('item_stat', $A['hits']);
+                $T->parse('stat_row','statrow',true);
             }
-            $stat_templates->parse('output','itemstats');
-            $retval .= $stat_templates->finish($stat_templates->get_var('output'));
+            $T->parse('output','itemstats');
+            $retval .= $T->finish($T->get_var('output'));
         } else {
             $retval .= $LANG_EX00['noextern'];
         }	
@@ -196,6 +208,9 @@ function plugin_getiteminfo_external($id, $what, $uid=0, $options=array())
         case 'author_name':
             $fields[] = 'owner_id';
             break;
+        default:
+            $fields[] = $p;
+            break;
         }
     }
     if (count($fields) == 0) {
@@ -206,19 +221,24 @@ function plugin_getiteminfo_external($id, $what, $uid=0, $options=array())
         }
     }
     $fields = array_unique($fields);
-    $fields = implode(',', $fields);
+    //$fields = implode(',', $fields);
     $retval = array();
-    $sql = "SELECT $fields FROM {$_TABLES['external']} WHERE 1=1 ";
+
+    $db = Database::getInstance();
+    $queryBuilder = $db->conn->createQueryBuilder();
+    foreach ($fields as $field) {
+        $queryBuilder->addSelect($field);
+    }
+    $queryBuilder->from($_TABLES['external']);
     if ($id != '*') {
-        $sql .= " AND (exid = '" . DB_escapeString($id) . "')";
+        $queryBuilder->andWhere('exid = ' . $queryBuilder->createNamedParameter($id));
     }
     if ($buildingSearchIndex) {
-        $sql .= " AND perm_anon > 1";
+        $queryBuilder->andWhere('perm_anon > 1');
     }
-
-    //COM_errorLog($sql);
-    $res = DB_query($sql);
-    while ($A = DB_fetchArray($res, false)) {
+    $stmt = $queryBuilder->execute();
+    $data = $stmt->fetchAll(Database::ASSOCIATIVE);
+    foreach ($data as $A) {
         $contents = '';
         if (isset($A['url'])) {
             if (strpos($A['url'], $_CONF['site_url']) === false) {
@@ -325,94 +345,6 @@ function EXT_getContents($url)
 
 
 /**
- * Searches for pages matching the user query and returns an array of
- * for the header and table rows back to search.php where it will be
- * formated and printed.
- *
- * @param   string  query       Keywords user is looking for
- * @param   string  datestart   Start date to get results for
- * @param   string  dateend     End date to get results for
- * @param   string  topic       The topic they were searching in
- * @param   string  type        Type of items they are searching
- * @param   string  author      Get all results by this author
- */
-function plugin_dopluginsearch_external(
-    $query,
-    $datestart,
-    $dateend,
-    $topic,
-    $type,
-    $author
-) {
-	global $_TABLES, $_CONF, $LANG_EX00;
-
-    if (empty($type)) {
-        $type = 'all';
-    }
-
-    // Bail if we aren't supppose to do our search.  Also, we can't handle
-    // searches without a query, such as "all postings by..."
-    if (($type <> 'all' && $type <> 'external') || empty($query)) {
-        $plugin_results = new Plugin();
-        $plugin_results->plugin_name = 'external';
-        $plugin_results->searchlabel = $LANG_EX00['externpages'] . $LANG_EX00['results'];
-        return $plugin_results;
-    }
-
-    // Build search SQL - Modified to exclude static PHP pages from search.
-    $sql = "SELECT * from {$_TABLES['external']}";
-    $result = DB_query($sql);
-
-    // OK, now create new plugin object and insert table header labels
-    require_once($_CONF['path_system'] . 'classes/plugin.class.php');
-    $plugin_results = new Plugin();
-    $plugin_results->plugin_name = 'external';
-    $plugin_results->searchlabel = $LANG_EX00['externpages'] . $LANG_EX00['results'];
-    $plugin_results->addSearchHeading($LANG_EX00['titlemsg']);
-    $plugin_results->addSearchHeading($LANG_EX00['urlmsg']);
-    $plugin_results->addSearchHeading($LANG_EX00['hitsmsg']);
-    $mycount = DB_numRows($result);
-
-    // NOTE if any of your data items need to be links then add them here!
-    // make sure data elements are in an array and in the same order as your
-    // headings above!
-    $rcnt = 0;
-	for ($i = 1; $i <= $mycount; $i++) {
-        $A = DB_fetchArray($result);
-
-        if(SEC_hasAccess($A['owner_id'], $A['group_id'], $A['perm_owner'],
-                $A['perm_group'], $A['perm_members'], $A['perm_anon'])){
-            if (preg_match("/^(http:\/\/)/i",$A['url']) == 1) {
-                $pth = $A['url'];
-                $url = $A['url'];
-            } else {
-                $pth = $_CONF['path_html'] . $A['url'];
-                $url = $_CONF['site_url'] . '/' . $A['url'];
-            }
-            $cnts = @file_get_contents($pth);
-            if (empty($cnts)) continue;
-            if (stristr($cnts,$query) != '') {
-                $rcnt++;
-                $A['title'] = stripslashes($A['title']);
-                $row = array($A['title'],
-                      $url,
-                     $A['hits']);
-                /*$row = array($A['title'],
-                      '<a href="' . $url . '">' . $A['url'] . "</a>",
-                     $A['hits']);*/
-                $plugin_results->addSearchResult($row);
-                $rcnt++;
-            }
-  	    }
-	
-	}
-    $plugin_results->num_searchresults = $rcnt;
-    $plugin_results->num_itemssearched = DB_count($_TABLES['external']);
-    return $plugin_results;
-}
-
-
-/**
  * This will put an option for the plugin in command and control.
  * Add the plugin name, icon and link to the command and control
  * block in moderation.php.
@@ -508,15 +440,18 @@ function plugin_configmanager_select_defgrp_external()
 {
     global $_TABLES;
 
-    $A = array();
+    $retval = array();
     $query = "SELECT grp_id, grp_name FROM {$_TABLES['groups']}";
-    $result = DB_query($query);
-    if ($result && DB_numRows($result) > 0) {
-        while ($row = DB_fetchArray($result)) {
-            $A[$row['grp_name']] = $row['grp_id'];
+    $db = Database::getInstance();
+    try {
+        $stmt = $db->conn->executeQuery($query);
+        $data = $stmt->fetchAll(Database::ASSOCIATIVE);
+        foreach ($data as $A) {
+            $retval[$A['grp_name']] = $row['grp_id'];
         }
+    } catch(\Throwable $e) {
     }
-    return $A;
+    return $retval;
 }
 
 
@@ -529,15 +464,18 @@ function plugin_configmanager_select_defuser_external()
 {
     global $_TABLES;
 
-    $A = array();
+    $retval = array();
     $query = "SELECT uid, username FROM {$_TABLES['users']}";
-    $result = DB_query($query);
-    if ($result && DB_numRows($result) > 0) {
-        while ($row = DB_fetchArray($result)) {
-            $A[$row['username']] = $row['uid'];
+    $db = Database::getInstance();
+    try {
+        $stmt = $db->conn->executeQuery($query);
+        $data = $stmt->fetchAll(Database::ASSOCIATIVE);
+        foreach ($data as $A) {
+            $retval[$A['username']] = $row['uid'];
         }
+    } catch(\Throwable $e) {
     }
-    return $A;
+    return $retval;
 }
 
 
@@ -558,8 +496,7 @@ function EXP_getGroups($grplist='', $NOT='')
 {
     global $_TABLES;
 
-    $A = array();
-
+    $retval = array();
     $query = "SELECT grp_id, grp_name FROM {$_TABLES['groups']}";
 
     // If a group list is specified, add it as a condition with the
@@ -567,16 +504,16 @@ function EXP_getGroups($grplist='', $NOT='')
     if ($grplist!= '') {
         $query .= " WHERE grp_name $NOT IN ($grplist)";
     }
-
-    $result = DB_query($query);
-    if ($result && DB_numRows($result) > 0) {
-        while ($row = DB_fetchArray($result)) {
-            $A[$row['grp_name']] = $row['grp_id'];
+    $db = Database::getInstance();
+    try {
+        $stmt = $db->conn->executeQuery($query);
+        $data = $stmt->fetchAll(Database::ASSOCIATIVE);
+        foreach ($data as $A) {
+            $retval[$A['grp_name']] = $row['grp_id'];
         }
+    } catch(\Throwable $e) {
     }
-
-    return $A;
-
+    return $retval;
 }
 
 
@@ -594,4 +531,3 @@ function EXP_externalAccess($page)
     return External\Page::checkAccess($page);
 }
 
-?>

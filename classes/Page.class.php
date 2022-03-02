@@ -5,12 +5,13 @@
  * @author      Lee Garner <lee@leegarner.com>
  * @copyright   Copyright (c) 2017-2022 Lee Garner <lee@leegarner.com>
  * @package     external
- * @version     v1.0.2
+ * @version     v1.0.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
  */
 namespace External;
+use glFusion\Database\Database;
 
 
 /**
@@ -74,12 +75,12 @@ class Page
         } elseif ($exid > 0) {
             $this->Read($exid);
         } else {
-            $this->owner_id = $_CONF_EXP['defuser'];
-            $this->group_id = $_CONF_EXP['defgrp'];
-            $this->perm_owner = $_CONF_EXP['default_permissions'][0];
-            $this->perm_group = $_CONF_EXP['default_permissions'][1];
-            $this->perm_members = $_CONF_EXP['default_permissions'][2];
-            $this->perm_anon = $_CONF_EXP['default_permissions'][3];
+            $this->owner_id = (int)$_CONF_EXP['defuser'];
+            $this->group_id = (int)$_CONF_EXP['defgrp'];
+            $this->perm_owner = (int)$_CONF_EXP['default_permissions'][0];
+            $this->perm_group = (int)$_CONF_EXP['default_permissions'][1];
+            $this->perm_members = (int)$_CONF_EXP['default_permissions'][2];
+            $this->perm_anon = (int)$_CONF_EXP['default_permissions'][3];
         }
     }
 
@@ -95,12 +96,15 @@ class Page
 
         $exid = (int)$exid;
         if ($exid > 0) {
-            $res = DB_query(
-                "SELECT * FROM {$_TABLES['external']} WHERE exid=$exid"
-            );
-            if ($res) {
-                $A=DB_fetchArray($res, false);
-                $this->setVars($A, true);
+            $db = Database::getInstance();
+            $sql = "SELECT * FROM {$_TABLES['external']} WHERE exid = ?";
+            try {
+                $stmt = $db->conn->executeQuery($sql, array($exid), array(Database::INTEGER));
+                $A = $stmt->fetch(Database::ASSOCIATIVE);
+                if (is_array($A)) {
+                    $this->setVars($A);
+                }
+            } catch(Throwable $e) {
             }
         }
     }
@@ -276,21 +280,50 @@ class Page
             $sql3 = '';
         } else {
             $sql1 = "UPDATE {$_TABLES['external']} SET ";
-            $sql3 = " WHERE exid = {$this->exid}";
+            $sql3 = " WHERE exid = :exid";
         }
-        $sql2 = "title = '" . DB_escapeString($this->title). "',
-            url = '" . DB_escapeString($this->url) . "',
-            hits = '{$this->hits}',
-            group_id = {$this->group_id},
-            owner_id = {$this->owner_id},
-            perm_owner = {$this->perm_owner},
-            perm_group = {$this->perm_group},
-            perm_members = {$this->perm_members},
-            perm_anon = {$this->perm_anon}";
+        $sql2 = "title = :title,
+            url = :url,
+            hits = :hits,
+            group_id = :group_id,
+            owner_id = :owner_id,
+            perm_owner = :perm_owner,
+            perm_group = :perm_group,
+            perm_members = :perm_members,
+            perm_anon = :perm_anon";
+        $params = array(
+            ':exid' => $this->exid,
+            ':title' => $this->title,
+            ':url' => $this->url,
+            ':hits' => $this->hits,
+            ':group_id' => $this->group_id,
+            ':owner_id' => $this->owner_id,
+            ':perm_owner' => $this->perm_owner,
+            ':perm_group' => $this->perm_group,
+            ':perm_members' => $this->perm_members,
+            ':perm_anon' => $this->perm_anon,
+        );
+        $types = array(
+            Database::INTEGER,
+            Database::STRING,
+            Database::STRING,
+            Database::INTEGER,
+            Database::INTEGER,
+            Database::INTEGER,
+            Database::INTEGER,
+            Database::INTEGER,
+            Database::INTEGER,
+            Database::INTEGER,
+        );
+        $db = Database::getInstance();
         $sql = $sql1 . $sql2 . $sql3;
         //echo $sql;die;
-        DB_query($sql);
-        return DB_error() ? false : true;
+        try {
+            $stmt = $db->conn->executeQuery($sql, $params, $types);                
+        } catch(\Throwable $e) {
+            return false;
+        }
+        return true;
     }
 
 
@@ -336,12 +369,15 @@ class Page
         global $_TABLES;
 
         $Page = new self;
-        $title = DB_escapeString($title);
-        $sql = "SELECT * FROM {$_TABLES['external']} WHERE title='$title'";
-        $res = DB_query($sql,1);
-        if ($res && DB_numRows($res) > 0) {
-            $A = DB_fetchArray($res, false);
-            $Page->setVars($A);
+        $db = Database::getInstance();
+        $sql = "SELECT * FROM {$_TABLES['external']} WHERE title = ?";
+        try {
+            $stmt = $db->conn->executeQuery($sql, array($title), array(Database::STRING));
+            $A = $stmt->fetch(Database::ASSOCIATIVE);
+            if (is_array($A)) {
+                $Page->setVars($A);
+            }
+        } catch(Throwable $e) {
         }
         return $Page;
     }
@@ -356,8 +392,16 @@ class Page
 
         $sql = "UPDATE {$_TABLES['external']} SET
             hits = hits+1
-            WHERE exid={$this->exid}";
-        DB_query($sql,1);
+            WHERE exid = ?";
+        $db = Database::getInstance();
+        try {
+            $stmt = $db->conn->executeQuery(
+                $sql,
+                array($this->exid),
+                array(Database::INTEGER)
+            );                
+        } catch(\Throwable $e) {
+        }
     }
 
 
@@ -412,13 +456,19 @@ class Page
         global $_TABLES;
 
         $retval = array();
-        $res = DB_query(
-            "SELECT * FROM {$_TABLES['external']} " .
-            COM_getPermSQL('WHERE',0,2) .
-            " ORDER BY title ASC"
-        );
-        while ($A = DB_fetchArray($res, false)) {
-            $retval[] = new self($A);
+        $db = Database::getInstance();
+        try {
+            $stmt = $db->conn->executeQuery(
+                "SELECT * FROM {$_TABLES['external']} " .
+                COM_getPermSQL('WHERE',0,2) .
+                " ORDER BY title ASC"
+            );
+            $data = $stmt->fetchAll(Database::ASSOCIATIVE);
+            foreach ($data as $A) {
+                $retval[] = new self($A);
+            }
+        } catch(\Throwable $e) {
+            return $retval;
         }
         return $retval;
     }

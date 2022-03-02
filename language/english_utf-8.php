@@ -4,10 +4,10 @@
  *
  * @author      Lee Garner <lee@leegarner.com>
  * @author      Tom Willett <tomw@pigstye.net>
- * @copyright   Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2022 Lee Garner <lee@leegarner.com>
  * @copyright   Copyright (c) 2002 Tom Willett <tomw@pigstye.net>
  * @package     external
- * @version     v1.0.2
+ * @version     v1.0.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
@@ -20,7 +20,7 @@ $LANG_EX00 = array (
     'header'            => 'External Pages',
     'version'           => 'Version',
     'results'           => ' Results',
-    'noextern'          => 'It appears that there are no external pagess on this site or no one has ever viewed them.',
+    'noextern'          => 'It appears that there are no external pages on this site or no one has ever viewed them.',
     'topten'            => 'Top Ten ',
     'save'              => 'Save',
     'delete'            => 'Delete',
